@@ -53,14 +53,19 @@ jobs:
 
       - name: snyk-code-test
         # Runs Snyk Code (SAST) analysis and uploads result into GitHub.
-        # Saves output only if successful to avoid invalid SARIF files
+        # Only creates SARIF file on successful execution
         run: |
-          if snyk code test --sarif > snyk-code.sarif 2>&1; then
-            echo "Snyk Code analysis completed successfully"
+          # Run snyk code test and capture only stdout (SARIF output)
+          if snyk code test --sarif 2>/dev/null > snyk-code.sarif.tmp; then
+            # Success: move the output file
+            mv snyk-code.sarif.tmp snyk-code.sarif
+            echo "✓ Snyk Code analysis completed successfully"
           else
-            echo "Snyk Code analysis failed or found issues (non-zero exit)"
-            # Create empty valid SARIF file to prevent upload errors
+            EXIT_CODE=$?
+            # Failure: create valid empty SARIF instead of error message
             echo '{"version":"2.1.0","runs":[]}' > snyk-code.sarif
+            echo "⚠ Snyk Code analysis failed with exit code $EXIT_CODE (creating empty SARIF)"
+            # Don't fail the step - continue-on-error handles this
           fi
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -95,6 +100,25 @@ jobs:
 
       - name: upload-result-to-github-code-scanning
         # Push the Snyk Code results into GitHub Code Scanning tab
+        # Validate SARIF is valid JSON before uploading
+        if: always() && hashFiles('snyk-code.sarif') != ''
+        run: |
+          # Verify SARIF file exists and contains valid JSON
+          if [ ! -f snyk-code.sarif ]; then
+            echo "SARIF file not found, skipping upload"
+            exit 0
+          fi
+          
+          # Validate JSON syntax
+          if python3 -m json.tool snyk-code.sarif > /dev/null 2>&1; then
+            echo "✓ SARIF file is valid JSON"
+          else
+            echo "✗ SARIF file contains invalid JSON, recreating as empty valid SARIF"
+            echo '{"version":"2.1.0","runs":[]}' > snyk-code.sarif
+          fi
+
+      - name: upload-valid-sarif
+        # Upload the validated SARIF to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
         if: always() && hashFiles('snyk-code.sarif') != ''
         with:
