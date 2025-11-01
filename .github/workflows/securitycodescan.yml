@@ -40,31 +40,32 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
 
-      - name: Find SARIF files
-        id: find-sarif
+      - name: Merge SARIF files
         run: |
-          $sarif_files = Get-ChildItem -Path . -Filter "*.sarif" -Recurse | Select-Object -ExpandProperty FullName
-          if ($sarif_files) {
-            $sarif_list = $sarif_files -join "`n"
-            Write-Output "Found SARIF files:`n$sarif_list"
-            echo "files=$sarif_list" >> $env:GITHUB_OUTPUT
-            echo "exists=true" >> $env:GITHUB_OUTPUT
+          $sarif_files = Get-ChildItem -Path . -Filter "analysis.sarif" -Recurse
+          if ($sarif_files.Count -gt 0) {
+            Write-Output "Found $($sarif_files.Count) SARIF file(s)"
+            # Copy first SARIF to root for upload
+            Copy-Item -Path $sarif_files[0].FullName -Destination "$PWD/merged-analysis.sarif" -Force
           } else {
             Write-Output "No SARIF files found"
-            echo "exists=false" >> $env:GITHUB_OUTPUT
           }
         shell: pwsh
 
       - name: Upload SARIF results
         uses: github/codeql-action/upload-sarif@v3
-        if: steps.find-sarif.outputs.exists == 'true'
+        if: hashFiles('merged-analysis.sarif') != ''
         with:
-          sarif_file: ${{ steps.find-sarif.outputs.files }}
+          sarif_file: merged-analysis.sarif
           wait-for-processing: true
 
       - name: Report scan results
         if: always()
         run: |
           Write-Output "SecurityCodeScan workflow completed"
-          Write-Output "SARIF files found: ${{ steps.find-sarif.outputs.exists }}"
+          if (Test-Path "merged-analysis.sarif") {
+            Write-Output "SARIF file uploaded"
+          } else {
+            Write-Output "No SARIF files generated"
+          }
         shell: pwsh
