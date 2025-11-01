@@ -1,0 +1,102 @@
+name: Version and Release
+
+on:
+  push:
+    branches: [ "main" ]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.0)'
+        required: false
+        type: string
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      semver: ${{ steps.gitversion.outputs.semVer }}
+      major: ${{ steps.gitversion.outputs.major }}
+      minor: ${{ steps.gitversion.outputs.minor }}
+      patch: ${{ steps.gitversion.outputs.patch }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.7
+        with:
+          versionSpec: '5.x'
+
+      - name: Determine version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0.9.7
+
+      - name: Display version
+        run: |
+          echo "Major: ${{ steps.gitversion.outputs.major }}"
+          echo "Minor: ${{ steps.gitversion.outputs.minor }}"
+          echo "Patch: ${{ steps.gitversion.outputs.patch }}"
+          echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
+
+  build:
+    needs: version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build with version
+        run: dotnet build --no-restore --configuration Release /p:Version=${{ needs.version.outputs.semver }}
+
+      - name: Run tests
+        run: dotnet test --no-build --configuration Release
+
+      - name: Pack NuGet packages
+        run: dotnet pack src/Avro.Mcp.Abstractions/Avro.Mcp.Abstractions.csproj --no-build --configuration Release -o nuget /p:Version=${{ needs.version.outputs.semver }}
+
+  release:
+    needs: [version, build]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          name: Release ${{ needs.version.outputs.semver }}
+          draft: false
+          prerelease: ${{ contains(needs.version.outputs.semver, 'alpha') || contains(needs.version.outputs.semver, 'rc') }}
+          body: |
+            ## Version ${{ needs.version.outputs.semver }}
+            
+            ### Changes
+            - Major: ${{ needs.version.outputs.major }}
+            - Minor: ${{ needs.version.outputs.minor }}
+            - Patch: ${{ needs.version.outputs.patch }}
+            
+            ### Build Information
+            - Commit: ${{ github.sha }}
+            - Branch: ${{ github.ref }}

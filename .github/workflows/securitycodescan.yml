@@ -36,9 +36,31 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
 
+      - name: Find SARIF files
+        id: find-sarif
+        run: |
+          $sarif_files = Get-ChildItem -Path . -Filter "*.sarif" -Recurse | Select-Object -ExpandProperty FullName
+          if ($sarif_files) {
+            $sarif_list = $sarif_files -join "`n"
+            Write-Output "Found SARIF files:`n$sarif_list"
+            echo "files=$sarif_list" >> $env:GITHUB_OUTPUT
+            echo "exists=true" >> $env:GITHUB_OUTPUT
+          } else {
+            Write-Output "No SARIF files found"
+            echo "exists=false" >> $env:GITHUB_OUTPUT
+          }
+        shell: pwsh
+
       - name: Upload SARIF results
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        if: steps.find-sarif.outputs.exists == 'true'
         with:
-          sarif_file: analysis.sarif
+          sarif_file: ${{ steps.find-sarif.outputs.files }}
           wait-for-processing: true
+
+      - name: Report scan results
+        if: always()
+        run: |
+          Write-Output "SecurityCodeScan workflow completed"
+          Write-Output "SARIF files found: ${{ steps.find-sarif.outputs.exists }}"
+        shell: pwsh

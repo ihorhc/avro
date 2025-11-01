@@ -1,0 +1,48 @@
+assembly-versioning-scheme: MajorMinorPatchTag
+assembly-file-versioning-scheme: MajorMinorPatchTag
+mode: ContinuousDeployment
+continuous-delivery-fallback-tag: ci
+tag-prefix: 'v'
+semantic-version-format: Strict
+next-version: 1.0.0
+increment: Patch
+branches:
+  main:
+    regex: ^main$
+    mode: ContinuousDeployment
+    tag: ''
+    increment: Patch
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    tracks-release-branches: false
+    is-release-branch: false
+    is-mainline: true
+  develop:
+    regex: ^develop$
+    mode: ContinuousDeployment
+    tag: alpha
+    increment: Minor
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    tracks-release-branches: false
+    is-release-branch: false
+  release:
+    regex: ^release[/-]
+    mode: ManualOnly
+    tag: rc
+    increment: Patch
+    prevent-increment-of-merged-branch-version: true
+    track-merge-target: false
+    tracks-release-branches: false
+    is-release-branch: true
+  feature:
+    regex: ^feature[/-]
+    mode: ContinuousDeployment
+    tag: feature
+    increment: Minor
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    tracks-release-branches: false
+ignore:
+  sha: []
+merge-message-formats: {}
