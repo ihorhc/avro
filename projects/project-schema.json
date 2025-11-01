@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Project Registry Schema",
+  "description": "Schema for AVRO project registry",
+  "type": "object",
+  "required": ["version", "statistics", "projects"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Registry version"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "statistics": {
+      "type": "object",
+      "properties": {
+        "totalProjects": { "type": "integer" },
+        "activeProjects": { "type": "integer" },
+        "archivedProjects": { "type": "integer" },
+        "backendProjects": { "type": "integer" },
+        "frontendProjects": { "type": "integer" },
+        "sharedProjects": { "type": "integer" }
+      }
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type", "path", "status"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique project identifier"
+          },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["backend", "frontend", "shared", "infrastructure"]
+          },
+          "language": {
+            "type": "string",
+            "enum": ["csharp", "typescript", "javascript", "python", "go"]
+          },
+          "framework": { "type": "string" },
+          "path": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["active", "archived", "deprecated"]
+          },
+          "owner": { "type": "string" },
+          "dependencies": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "dependents": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "buildConfig": {
+            "type": "object",
+            "properties": {
+              "buildCommand": { "type": "string" },
+              "testCommand": { "type": "string" },
+              "devCommand": { "type": "string" },
+              "outputPath": { "type": "string" }
+            }
+          },
+          "aiContext": {
+            "type": "object",
+            "properties": {
+              "primaryPurpose": { "type": "string" },
+              "keyFiles": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "autonomyLevel": {
+                "type": "string",
+                "enum": ["autonomous", "supervised", "manual"]
+              },
+              "criticalPaths": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,207 @@
+{
+  "$schema": "./project-schema.json",
+  "version": "1.0.0",
+  "lastUpdated": "2025-11-01T13:45:00Z",
+  "statistics": {
+    "totalProjects": 127,
+    "activeProjects": 98,
+    "archivedProjects": 29,
+    "backendProjects": 52,
+    "frontendProjects": 38,
+    "sharedProjects": 37
+  },
+  "projects": [
+    {
+      "id": "backend.core.platform",
+      "name": "Platform Core",
+      "description": "Core platform services and infrastructure",
+      "type": "backend",
+      "language": "csharp",
+      "framework": "dotnet8",
+      "path": "backend/core/Platform.Core",
+      "status": "active",
+      "owner": "platform-team",
+      "dependencies": [],
+      "dependents": [
+        "backend.core.taskregistry",
+        "backend.core.dependencies",
+        "backend.core.ai.workflows"
+      ],
+      "buildConfig": {
+        "buildCommand": "dotnet build",
+        "testCommand": "dotnet test",
+        "outputPath": "bin/Release/net8.0"
+      },
+      "aiContext": {
+        "primaryPurpose": "Core platform infrastructure and shared services",
+        "keyFiles": [
+          "Platform.Core/Services/PlatformService.cs",
+          "Platform.Core/Models/PlatformConfig.cs"
+        ],
+        "autonomyLevel": "supervised",
+        "criticalPaths": [
+          "Platform.Core/Services/"
+        ]
+      },
+      "createdAt": "2025-01-15T10:00:00Z"
+    },
+    {
+      "id": "backend.core.taskregistry",
+      "name": "Task Registry Service",
+      "description": "Centralized task management and tracking",
+      "type": "backend",
+      "language": "csharp",
+      "framework": "dotnet8",
+      "path": "backend/core/TaskRegistry",
+      "status": "active",
+      "owner": "platform-team",
+      "dependencies": ["backend.core.platform"],
+      "dependents": ["backend.services.api.tasks"],
+      "buildConfig": {
+        "buildCommand": "dotnet build",
+        "testCommand": "dotnet test",
+        "outputPath": "bin/Release/net8.0"
+      },
+      "aiContext": {
+        "primaryPurpose": "Manage and track 5K+ structured tasks",
+        "keyFiles": [
+          "TaskRegistry/Services/TaskService.cs",
+          "TaskRegistry/Models/Task.cs",
+          "TaskRegistry/Repositories/TaskRepository.cs"
+        ],
+        "autonomyLevel": "autonomous",
+        "criticalPaths": []
+      },
+      "createdAt": "2025-01-16T09:00:00Z"
+    },
+    {
+      "id": "backend.core.dependencies",
+      "name": "Dependency Graph Service",
+      "description": "Cross-project dependency tracking and resolution",
+      "type": "backend",
+      "language": "csharp",
+      "framework": "dotnet8",
+      "path": "backend/core/Dependencies",
+      "status": "active",
+      "owner": "platform-team",
+      "dependencies": ["backend.core.platform"],
+      "dependents": ["backend.services.api.projects"],
+      "buildConfig": {
+        "buildCommand": "dotnet build",
+        "testCommand": "dotnet test",
+        "outputPath": "bin/Release/net8.0"
+      },
+      "aiContext": {
+        "primaryPurpose": "Track dependencies between 100+ projects",
+        "keyFiles": [
+          "Dependencies/Graph/DependencyGraph.cs",
+          "Dependencies/Resolvers/DependencyResolver.cs"
+        ],
+        "autonomyLevel": "supervised",
+        "criticalPaths": [
+          "Dependencies/Graph/"
+        ]
+      },
+      "createdAt": "2025-01-17T10:00:00Z"
+    },
+    {
+      "id": "backend.core.ai.workflows",
+      "name": "AI Workflow Engine",
+      "description": "Autonomous workflow execution for AI agents",
+      "type": "backend",
+      "language": "csharp",
+      "framework": "dotnet8",
+      "path": "backend/core/AI.Workflows",
+      "status": "active",
+      "owner": "ai-team",
+      "dependencies": [
+        "backend.core.platform",
+        "backend.core.taskregistry"
+      ],
+      "dependents": [],
+      "buildConfig": {
+        "buildCommand": "dotnet build",
+        "testCommand": "dotnet test",
+        "outputPath": "bin/Release/net8.0"
+      },
+      "aiContext": {
+        "primaryPurpose": "Enable autonomous issue-to-PR workflows",
+        "keyFiles": [
+          "AI.Workflows/Engine/WorkflowEngine.cs",
+          "AI.Workflows/Models/Workflow.cs",
+          "AI.Workflows/Executors/IssueToprExecutor.cs"
+        ],
+        "autonomyLevel": "supervised",
+        "criticalPaths": [
+          "AI.Workflows/Engine/",
+          "AI.Workflows/Executors/"
+        ]
+      },
+      "createdAt": "2025-01-20T08:00:00Z"
+    },
+    {
+      "id": "frontend.packages.ui",
+      "name": "UI Component Library",
+      "description": "Shared UI components based on shadcn",
+      "type": "frontend",
+      "language": "typescript",
+      "framework": "react",
+      "path": "frontend/packages/ui",
+      "status": "active",
+      "owner": "frontend-team",
+      "dependencies": [],
+      "dependents": [
+        "frontend.apps.dashboard",
+        "frontend.apps.taskmanager"
+      ],
+      "buildConfig": {
+        "buildCommand": "pnpm build",
+        "testCommand": "pnpm test",
+        "outputPath": "dist"
+      },
+      "aiContext": {
+        "primaryPurpose": "Reusable shadcn-based UI components",
+        "keyFiles": [
+          "ui/components/button.tsx",
+          "ui/components/card.tsx",
+          "ui/lib/utils.ts"
+        ],
+        "autonomyLevel": "autonomous",
+        "criticalPaths": []
+      },
+      "createdAt": "2025-01-18T09:00:00Z"
+    },
+    {
+      "id": "frontend.apps.dashboard",
+      "name": "Platform Dashboard",
+      "description": "Main dashboard application for platform management",
+      "type": "frontend",
+      "language": "typescript",
+      "framework": "nextjs",
+      "path": "frontend/apps/dashboard",
+      "status": "active",
+      "owner": "frontend-team",
+      "dependencies": ["frontend.packages.ui"],
+      "dependents": [],
+      "buildConfig": {
+        "buildCommand": "pnpm build",
+        "testCommand": "pnpm test",
+        "devCommand": "pnpm dev",
+        "outputPath": ".next"
+      },
+      "aiContext": {
+        "primaryPurpose": "Central hub for platform monitoring and management",
+        "keyFiles": [
+          "dashboard/app/page.tsx",
+          "dashboard/app/layout.tsx",
+          "dashboard/components/nav.tsx"
+        ],
+        "autonomyLevel": "supervised",
+        "criticalPaths": [
+          "dashboard/app/"
+        ]
+      },
+      "createdAt": "2025-01-25T10:00:00Z"
+    }
+  ]
+}

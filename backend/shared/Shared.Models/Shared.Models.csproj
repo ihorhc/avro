@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>AVRO.Shared.Models</RootNamespace>
+    <AssemblyName>AVRO.Shared.Models</AssemblyName>
+  </PropertyGroup>
+
+</Project>

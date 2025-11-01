@@ -1,0 +1,106 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-11-01T13:45:00Z",
+  "rules": {
+    "autonomous": {
+      "description": "AI agents can make changes without human review",
+      "conditions": [
+        "Project autonomyLevel is 'autonomous'",
+        "Changes are within non-critical paths",
+        "No changes to public APIs or contracts",
+        "All tests pass",
+        "No security vulnerabilities introduced"
+      ],
+      "examples": [
+        "Adding new private methods",
+        "Refactoring internal implementations",
+        "Adding unit tests",
+        "Updating documentation",
+        "Formatting and style fixes"
+      ]
+    },
+    "supervised": {
+      "description": "AI agents can make changes but require human review before merge",
+      "conditions": [
+        "Project autonomyLevel is 'supervised'",
+        "Changes affect critical paths",
+        "Changes to public APIs or contracts",
+        "Complex business logic changes",
+        "Performance-critical code"
+      ],
+      "examples": [
+        "Modifying core business logic",
+        "Changing public API signatures",
+        "Database schema changes",
+        "Security-related modifications",
+        "Performance optimizations"
+      ]
+    },
+    "manual": {
+      "description": "Changes require human implementation or significant oversight",
+      "conditions": [
+        "Project autonomyLevel is 'manual'",
+        "Architectural decisions required",
+        "Security-critical changes",
+        "Data migration required",
+        "Breaking changes"
+      ],
+      "examples": [
+        "Major architectural refactoring",
+        "Security vulnerability fixes",
+        "Production data migrations",
+        "Third-party integrations",
+        "Compliance-related changes"
+      ]
+    }
+  },
+  "criticalPaths": {
+    "description": "Paths that always require human review",
+    "paths": [
+      "backend/core/Platform.Core/Services/",
+      "backend/core/AI.Workflows/Engine/",
+      "backend/core/AI.Workflows/Executors/",
+      "backend/core/Dependencies/Graph/",
+      "frontend/apps/*/app/",
+      "ai/workflows/",
+      "projects/registry.json",
+      "tasks/registry.json"
+    ]
+  },
+  "safetyChecks": {
+    "preCommit": [
+      "Run all tests",
+      "Check for security vulnerabilities",
+      "Validate against schema",
+      "Check for breaking changes",
+      "Verify code coverage"
+    ],
+    "postCommit": [
+      "Create PR with detailed description",
+      "Tag appropriate reviewers",
+      "Run CI/CD pipeline",
+      "Await review for supervised changes"
+    ]
+  },
+  "escapeHatches": {
+    "description": "Mechanisms for AI agents to request human help",
+    "scenarios": [
+      {
+        "condition": "Unclear requirements",
+        "action": "Add comment to issue requesting clarification"
+      },
+      {
+        "condition": "Conflicting constraints",
+        "action": "Create discussion with options and tradeoffs"
+      },
+      {
+        "condition": "Test failures in unrelated code",
+        "action": "Report issue and skip unrelated tests"
+      },
+      {
+        "condition": "Security concerns",
+        "action": "Escalate to security team"
+      }
+    ]
+  }
+}

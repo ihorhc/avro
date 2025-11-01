@@ -1,0 +1,155 @@
+{
+  "$schema": "./task-schema.json",
+  "version": "1.0.0",
+  "lastUpdated": "2025-11-01T13:45:00Z",
+  "statistics": {
+    "totalTasks": 5247,
+    "completedTasks": 3891,
+    "inProgressTasks": 756,
+    "blockedTasks": 143,
+    "pendingTasks": 457
+  },
+  "categories": {
+    "backend": {
+      "description": "Backend services and APIs",
+      "taskCount": 1543
+    },
+    "frontend": {
+      "description": "Frontend applications and UI components",
+      "taskCount": 1289
+    },
+    "infrastructure": {
+      "description": "DevOps, CI/CD, and infrastructure",
+      "taskCount": 821
+    },
+    "ai": {
+      "description": "AI agent workflows and automation",
+      "taskCount": 645
+    },
+    "documentation": {
+      "description": "Technical documentation and guides",
+      "taskCount": 432
+    },
+    "testing": {
+      "description": "Test automation and quality assurance",
+      "taskCount": 517
+    }
+  },
+  "tasks": [
+    {
+      "id": "TASK-0001",
+      "title": "Initialize core platform architecture",
+      "description": "Set up foundational platform architecture with standardized patterns",
+      "category": "backend",
+      "priority": "critical",
+      "status": "completed",
+      "assignedProject": "backend.core.platform",
+      "dependencies": [],
+      "aiMetadata": {
+        "complexity": "high",
+        "estimatedEffort": "8h",
+        "requiresHumanReview": true,
+        "contextFiles": [
+          "backend/core/Platform.Core/Architecture.md"
+        ]
+      },
+      "createdAt": "2025-01-15T10:00:00Z",
+      "completedAt": "2025-01-18T16:30:00Z"
+    },
+    {
+      "id": "TASK-0002",
+      "title": "Implement task registry service",
+      "description": "Create centralized task management and tracking service",
+      "category": "backend",
+      "priority": "high",
+      "status": "completed",
+      "assignedProject": "backend.core.taskregistry",
+      "dependencies": ["TASK-0001"],
+      "aiMetadata": {
+        "complexity": "medium",
+        "estimatedEffort": "5h",
+        "requiresHumanReview": false,
+        "contextFiles": [
+          "backend/core/TaskRegistry/TaskService.cs"
+        ]
+      },
+      "createdAt": "2025-01-16T09:00:00Z",
+      "completedAt": "2025-01-19T14:00:00Z"
+    },
+    {
+      "id": "TASK-0003",
+      "title": "Set up project dependency graph",
+      "description": "Build dependency tracking system for cross-project relationships",
+      "category": "backend",
+      "priority": "high",
+      "status": "completed",
+      "assignedProject": "backend.core.dependencies",
+      "dependencies": ["TASK-0001"],
+      "aiMetadata": {
+        "complexity": "high",
+        "estimatedEffort": "6h",
+        "requiresHumanReview": true,
+        "contextFiles": [
+          "backend/core/Dependencies/DependencyGraph.cs"
+        ]
+      },
+      "createdAt": "2025-01-17T10:00:00Z",
+      "completedAt": "2025-01-21T15:30:00Z"
+    },
+    {
+      "id": "TASK-0004",
+      "title": "Create AI agent workflow engine",
+      "description": "Implement autonomous workflow execution engine for AI agents",
+      "category": "ai",
+      "priority": "critical",
+      "status": "in-progress",
+      "assignedProject": "backend.core.ai.workflows",
+      "dependencies": ["TASK-0001", "TASK-0002"],
+      "aiMetadata": {
+        "complexity": "very-high",
+        "estimatedEffort": "12h",
+        "requiresHumanReview": true,
+        "contextFiles": [
+          "ai/workflows/WorkflowEngine.md",
+          "backend/core/AI.Workflows/Engine.cs"
+        ]
+      },
+      "createdAt": "2025-01-20T08:00:00Z",
+      "updatedAt": "2025-10-28T11:00:00Z"
+    },
+    {
+      "id": "TASK-0005",
+      "title": "Implement shadcn UI component library",
+      "description": "Set up shadcn-based component library for frontend",
+      "category": "frontend",
+      "priority": "high",
+      "status": "completed",
+      "assignedProject": "frontend.packages.ui",
+      "dependencies": [],
+      "aiMetadata": {
+        "complexity": "medium",
+        "estimatedEffort": "4h",
+        "requiresHumanReview": false,
+        "contextFiles": [
+          "frontend/packages/ui/components/index.ts"
+        ]
+      },
+      "createdAt": "2025-01-18T09:00:00Z",
+      "completedAt": "2025-01-22T16:00:00Z"
+    }
+  ],
+  "queryExamples": [
+    {
+      "description": "Find all high-priority backend tasks",
+      "query": "category:backend AND priority:high"
+    },
+    {
+      "description": "Find tasks requiring human review",
+      "query": "aiMetadata.requiresHumanReview:true"
+    },
+    {
+      "description": "Find blocked tasks",
+      "query": "status:blocked"
+    }
+  ]
+}

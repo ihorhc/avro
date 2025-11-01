@@ -1,0 +1,88 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-11-01T13:45:00Z",
+  "nodes": [
+    {
+      "id": "backend.core.platform",
+      "type": "core",
+      "dependencies": [],
+      "dependents": [
+        "backend.core.taskregistry",
+        "backend.core.dependencies",
+        "backend.core.ai.workflows",
+        "backend.services.api.tasks",
+        "backend.services.api.projects"
+      ]
+    },
+    {
+      "id": "backend.core.taskregistry",
+      "type": "core",
+      "dependencies": ["backend.core.platform"],
+      "dependents": [
+        "backend.core.ai.workflows",
+        "backend.services.api.tasks"
+      ]
+    },
+    {
+      "id": "backend.core.dependencies",
+      "type": "core",
+      "dependencies": ["backend.core.platform"],
+      "dependents": ["backend.services.api.projects"]
+    },
+    {
+      "id": "backend.core.ai.workflows",
+      "type": "core",
+      "dependencies": [
+        "backend.core.platform",
+        "backend.core.taskregistry"
+      ],
+      "dependents": ["backend.services.api.workflows"]
+    },
+    {
+      "id": "frontend.packages.ui",
+      "type": "shared",
+      "dependencies": [],
+      "dependents": [
+        "frontend.apps.dashboard",
+        "frontend.apps.taskmanager",
+        "frontend.apps.workflow-designer"
+      ]
+    },
+    {
+      "id": "frontend.apps.dashboard",
+      "type": "application",
+      "dependencies": ["frontend.packages.ui"],
+      "dependents": []
+    }
+  ],
+  "analysis": {
+    "criticalNodes": [
+      "backend.core.platform",
+      "frontend.packages.ui"
+    ],
+    "leafNodes": [
+      "frontend.apps.dashboard",
+      "frontend.apps.taskmanager",
+      "backend.services.api.tasks"
+    ],
+    "maxDepth": 3,
+    "circularDependencies": []
+  },
+  "changeImpactAnalysis": {
+    "backend.core.platform": {
+      "directImpact": 5,
+      "transitiveImpact": 12,
+      "risk": "critical"
+    },
+    "backend.core.taskregistry": {
+      "directImpact": 2,
+      "transitiveImpact": 4,
+      "risk": "high"
+    },
+    "frontend.packages.ui": {
+      "directImpact": 3,
+      "transitiveImpact": 3,
+      "risk": "high"
+    }
+  }
+}

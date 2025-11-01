@@ -1,0 +1,93 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-11-01T13:45:00Z",
+  "backend": {
+    "naming": {
+      "projects": "PascalCase (e.g., Platform.Core)",
+      "namespaces": "PascalCase following directory structure",
+      "classes": "PascalCase",
+      "interfaces": "IPascalCase (I-prefix)",
+      "methods": "PascalCase",
+      "properties": "PascalCase",
+      "fields": "_camelCase (private), PascalCase (public)",
+      "constants": "PascalCase"
+    },
+    "architecture": {
+      "pattern": "Clean Architecture with CQRS",
+      "layers": [
+        "Domain - Core business entities",
+        "Application - Use cases and business logic",
+        "Infrastructure - External concerns (DB, APIs)",
+        "Presentation - API controllers and endpoints"
+      ],
+      "dependencies": "Inner layers never depend on outer layers"
+    },
+    "structure": {
+      "serviceLayers": [
+        "Controllers - HTTP endpoints",
+        "Services - Business logic",
+        "Repositories - Data access",
+        "Models - Data structures"
+      ]
+    },
+    "conventions": {
+      "asyncMethods": "Suffix with 'Async'",
+      "interfaces": "Define in separate files",
+      "dependencies": "Use dependency injection",
+      "errorHandling": "Use Result<T> pattern, not exceptions for business logic",
+      "logging": "Use ILogger<T> from Microsoft.Extensions.Logging",
+      "configuration": "Use IOptions<T> pattern"
+    }
+  },
+  "frontend": {
+    "naming": {
+      "components": "PascalCase (e.g., TaskCard.tsx)",
+      "hooks": "camelCase with 'use' prefix (e.g., useTask.ts)",
+      "utilities": "camelCase (e.g., formatDate.ts)",
+      "constants": "UPPER_SNAKE_CASE",
+      "types": "PascalCase",
+      "interfaces": "PascalCase"
+    },
+    "architecture": {
+      "pattern": "Component-based with hooks",
+      "stateManagement": "React Context + hooks for global state",
+      "dataFetching": "TanStack Query (React Query)",
+      "routing": "Next.js App Router"
+    },
+    "structure": {
+      "componentStructure": [
+        "components/ - Reusable components",
+        "hooks/ - Custom hooks",
+        "lib/ - Utilities and helpers",
+        "types/ - TypeScript types",
+        "app/ - Next.js routes (App Router)"
+      ]
+    },
+    "conventions": {
+      "components": "Functional components with TypeScript",
+      "styling": "Tailwind CSS with shadcn/ui components",
+      "props": "Define interfaces for component props",
+      "exports": "Named exports for utilities, default for components",
+      "files": "One component per file",
+      "testing": "Jest + React Testing Library"
+    }
+  },
+  "general": {
+    "versionControl": {
+      "branches": "feature/, bugfix/, hotfix/ prefixes",
+      "commits": "Conventional Commits format",
+      "prTemplate": "Follow PR template in .github/"
+    },
+    "documentation": {
+      "code": "XML docs for C#, JSDoc for TypeScript",
+      "architecture": "Markdown in docs/",
+      "api": "OpenAPI/Swagger for REST APIs"
+    },
+    "testing": {
+      "backend": "xUnit with FluentAssertions",
+      "frontend": "Jest with React Testing Library",
+      "coverage": "Minimum 80% for new code",
+      "e2e": "Playwright for critical paths"
+    }
+  }
+}
