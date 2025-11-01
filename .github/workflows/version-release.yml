@@ -16,10 +16,10 @@ jobs:
   version:
     runs-on: ubuntu-latest
     outputs:
-      semver: ${{ steps.gitversion.outputs.semVer || steps.fallback.outputs.semver }}
-      major: ${{ steps.gitversion.outputs.major || steps.fallback.outputs.major }}
-      minor: ${{ steps.gitversion.outputs.minor || steps.fallback.outputs.minor }}
-      patch: ${{ steps.gitversion.outputs.patch || steps.fallback.outputs.patch }}
+      semver: ${{ steps.version.outputs.semver }}
+      major: ${{ steps.version.outputs.major }}
+      minor: ${{ steps.version.outputs.minor }}
+      patch: ${{ steps.version.outputs.patch }}
 
     steps:
       - name: Checkout repository
@@ -32,29 +32,35 @@ jobs:
         with:
           versionSpec: '5.x'
 
-      - name: Determine version
+      - name: Determine version with GitVersion
         id: gitversion
         uses: gittools/actions/gitversion/execute@v0.9.7
         with:
           useConfigFile: true
         continue-on-error: true
 
-      - name: Set fallback version
-        if: failure()
+      - name: Set version outputs
+        id: version
         run: |
-          echo "semver=1.0.0+${{ github.run_number }}" >> $GITHUB_OUTPUT
-          echo "major=1" >> $GITHUB_OUTPUT
-          echo "minor=0" >> $GITHUB_OUTPUT
-          echo "patch=${{ github.run_number }}" >> $GITHUB_OUTPUT
-        id: fallback
+          if [ "${{ steps.gitversion.outcome }}" = "success" ]; then
+            echo "semver=${{ steps.gitversion.outputs.semVer }}" >> $GITHUB_OUTPUT
+            echo "major=${{ steps.gitversion.outputs.major }}" >> $GITHUB_OUTPUT
+            echo "minor=${{ steps.gitversion.outputs.minor }}" >> $GITHUB_OUTPUT
+            echo "patch=${{ steps.gitversion.outputs.patch }}" >> $GITHUB_OUTPUT
+          else
+            echo "GitVersion failed, using fallback version"
+            echo "semver=1.0.0+${{ github.run_number }}" >> $GITHUB_OUTPUT
+            echo "major=1" >> $GITHUB_OUTPUT
+            echo "minor=0" >> $GITHUB_OUTPUT
+            echo "patch=${{ github.run_number }}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Display version
         run: |
-          echo "Major: ${{ steps.gitversion.outputs.major }}"
-          echo "Minor: ${{ steps.gitversion.outputs.minor }}"
-          echo "Patch: ${{ steps.gitversion.outputs.patch }}"
-          echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
-          echo "FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}"
+          echo "Major: ${{ steps.version.outputs.major }}"
+          echo "Minor: ${{ steps.version.outputs.minor }}"
+          echo "Patch: ${{ steps.version.outputs.patch }}"
+          echo "SemVer: ${{ steps.version.outputs.semver }}"
 
   build:
     needs: version
