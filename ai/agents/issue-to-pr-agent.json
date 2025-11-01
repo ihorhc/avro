@@ -1,0 +1,114 @@
+{
+  "id": "issue-to-pr-agent",
+  "name": "Issue-to-PR Agent",
+  "version": "1.0.0",
+  "description": "Autonomous agent for converting GitHub issues to pull requests",
+  "capabilities": [
+    "issue-analysis",
+    "code-generation",
+    "test-creation",
+    "pr-submission"
+  ],
+  "permissions": {
+    "read": [
+      "issues",
+      "code",
+      "tasks",
+      "projects",
+      "context"
+    ],
+    "write": [
+      "code",
+      "tests",
+      "pull-requests"
+    ],
+    "restricted": [
+      "projects/registry.json",
+      "tasks/registry.json",
+      "ai/context/*"
+    ]
+  },
+  "autonomyLevel": {
+    "default": "supervised",
+    "rules": {
+      "autonomous": {
+        "conditions": [
+          "project.autonomyLevel === 'autonomous'",
+          "!affectsCriticalPaths",
+          "!modifiesPublicAPI",
+          "allTestsPass"
+        ]
+      },
+      "supervised": {
+        "conditions": [
+          "project.autonomyLevel === 'supervised'",
+          "OR affectsCriticalPaths",
+          "OR modifiesPublicAPI"
+        ]
+      },
+      "manual": {
+        "conditions": [
+          "project.autonomyLevel === 'manual'",
+          "OR requiresArchitecturalDecision"
+        ]
+      }
+    }
+  },
+  "contextRequirements": {
+    "required": [
+      "ai/context/navigation.json",
+      "ai/context/patterns.json",
+      "ai/context/autonomy-rules.json"
+    ],
+    "optional": [
+      "ai/context/dependency-graph.json"
+    ],
+    "dynamic": [
+      "project configuration",
+      "task metadata",
+      "related code files"
+    ]
+  },
+  "workflow": "issue-to-pr",
+  "configuration": {
+    "maxFileChanges": 20,
+    "maxLinesChanged": 500,
+    "requireTests": true,
+    "minimumCoverage": 80,
+    "runSecurityScan": true,
+    "createDetailedPR": true
+  },
+  "errorHandling": {
+    "maxRetries": 2,
+    "escalateOn": [
+      "unclear-requirements",
+      "conflicting-constraints",
+      "security-concerns"
+    ],
+    "rollbackOn": [
+      "test-failures",
+      "security-vulnerabilities",
+      "build-failures"
+    ]
+  },
+  "monitoring": {
+    "logLevel": "info",
+    "metrics": [
+      "issues-processed",
+      "prs-created",
+      "success-rate",
+      "avg-execution-time",
+      "human-intervention-rate"
+    ],
+    "alerts": [
+      {
+        "condition": "success-rate < 0.7",
+        "action": "notify-admin"
+      },
+      {
+        "condition": "execution-time > 3600",
+        "action": "timeout-and-escalate"
+      }
+    ]
+  }
+}
