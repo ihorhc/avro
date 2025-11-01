@@ -1,5 +1,68 @@
 # Avro Platform – Copilot Project Instructions
 
+## AI Development Workflow
+
+This repository uses an AI-powered development pipeline for automated feature implementation.
+
+### How It Works
+
+1. **Create Issue** with label `ai-ready` and detailed requirements
+2. **AI Pipeline Triggers** automatically via GitHub Actions
+3. **Parallel Agent Execution**:
+   - **Architect Agent**: Validates design and creates implementation strategy
+   - **Implementation Agent**: Writes production code following approved architecture
+   - **Testing Agent**: Creates comprehensive test suites in parallel
+   - **DevOps Agent**: Sets up CI/CD and infrastructure configuration
+   - **Review Agent**: Validates code quality, security, and compliance
+4. **Auto-PR Creation**: Pull request generated with all changes
+5. **Review & Merge**: Human review or auto-merge based on quality gates
+
+### Agent Context
+
+All agents work within the Avro platform context:
+
+- **Monorepo Structure**: .NET backend + TypeScript frontend
+- **Cloud Platform**: AWS deployment (ECS/Fargate, RDS, Lambda)
+- **Architecture**: Clean Architecture, CQRS, DDD, Event-Driven
+- **Standards**: 80%+ code coverage, async/await, multi-tenancy
+
+### Agent Coordination
+
+Agents execute in parallel where possible:
+
+```
+Ticket (ai-ready, TODO)
+  ↓
+Architecture Analysis
+  ↓
+┌──────────────┬──────────────┬──────────────┐
+│ Implementation│   Testing    │   DevOps     │
+└──────────────┴──────────────┴──────────────┘
+  ↓
+Code Review
+  ↓
+Auto-merge or Draft PR
+```
+
+### Usage
+
+**Label an issue with `ai-ready`** to trigger the pipeline:
+
+```markdown
+Title: Implement notification service
+Labels: ai-ready
+
+Description:
+Create a notification service that handles:
+- Email notifications via SendGrid
+- SMS notifications via Twilio
+- Push notifications via Firebase
+- Multi-tenant support
+- Async processing with MassTransit
+```
+
+Add `auto-merge` label for automatic merge after successful review.
+
 ## General Coding Standards
 - Use modern C# features and nullable reference types for all new code.
 - Follow SOLID principles (see [SOLID Principles & Code Organization](./instructions/solid-principles.md)) and established naming conventions.
