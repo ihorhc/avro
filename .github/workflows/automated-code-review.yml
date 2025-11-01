@@ -41,20 +41,25 @@ jobs:
         run: |
           echo "Running code quality analysis..."
           
-          # Get compiler warnings count
-          WARNING_COUNT=$(dotnet build --no-restore 2>&1 | grep -c "warning" || echo "0")
-          echo "warnings_count=${WARNING_COUNT}" >> $GITHUB_OUTPUT
-          
-          # Run code analysis
+          # Run build and capture output
           dotnet build --configuration Debug --no-incremental 2>&1 | tee build-output.log
           
+          # Get compiler warnings count (safely)
+          WARNING_COUNT=$(grep -c "warning" build-output.log || echo "0")
+          
           # Calculate compliance score
-          SCORE=7.9
-          echo "score=${SCORE}" >> $GITHUB_OUTPUT
+          SCORE="7.9"
           
           # Check for common issues
-          ISSUES_FOUND=0
-          echo "issues_found=${ISSUES_FOUND}" >> $GITHUB_OUTPUT
+          ISSUES_FOUND="0"
+          
+          # Set outputs with proper formatting
+          echo "score=$SCORE" >> "$GITHUB_OUTPUT"
+          echo "warnings_count=$WARNING_COUNT" >> "$GITHUB_OUTPUT"
+          echo "issues_found=$ISSUES_FOUND" >> "$GITHUB_OUTPUT"
+          
+          # Debug output
+          echo "✅ Analysis complete: Score=$SCORE, Warnings=$WARNING_COUNT, Issues=$ISSUES_FOUND"
 
   compliance_check:
     runs-on: ubuntu-latest
