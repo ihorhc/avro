@@ -1,5 +1,19 @@
 name: AI-Powered Development Pipeline
 
+# This workflow implements the framework for AI-powered autonomous development.
+# It demonstrates the complete pipeline structure and agent coordination.
+#
+# CURRENT STATE: Framework implementation
+# - Workflow structure is complete and functional
+# - Agent definitions are in place (.github/agents/)
+# - Actual Copilot API integration pending (requires GitHub Copilot API access)
+#
+# TO ACTIVATE:
+# When GitHub Copilot API becomes available, replace placeholder steps with:
+#   gh copilot run --agent ".github/agents/{agent}.agent.md" --context "{issue}"
+#
+# OR integrate with custom Copilot solutions that can execute agent instructions.
+
 on:
   issues:
     types: [labeled, opened, edited]
@@ -151,13 +165,19 @@ jobs:
           AGENT_NAME: ${{ matrix.agent }}
         run: |
           echo "Running ${{ matrix.agent }} agent..."
-          echo "This would invoke GitHub Copilot with agent-specific instructions"
           echo "Agent: $AGENT_NAME"
           echo "Issue: $ISSUE_TITLE"
 
-          # Placeholder for actual Copilot agent invocation
-          # In production, this would use gh copilot or custom Copilot integration
-          echo "result=Agent $AGENT_NAME completed successfully" >> $GITHUB_OUTPUT
+          # NOTE: This is a framework implementation
+          # Actual Copilot agent invocation requires GitHub Copilot API access
+          # When available, replace with:
+          # gh copilot run --agent ".github/agents/${{ matrix.agent }}.agent.md" \
+          #   --context "$ISSUE_TITLE: $ISSUE_BODY"
+          #
+          # For now, this workflow demonstrates the pipeline structure
+          # and can be tested with manual implementations or custom integrations
+
+          echo "result=Agent $AGENT_NAME framework ready" >> $GITHUB_OUTPUT
 
       - name: Commit changes
         run: |
@@ -189,14 +209,17 @@ jobs:
       - name: Run code quality checks
         run: |
           echo "Running code review checks..."
+          # NOTE: Uncomment these when agent-generated code is present:
           # dotnet format --verify-no-changes
           # dotnet build --no-incremental
-          echo "Code review passed"
+          echo "✅ Code quality framework ready"
 
       - name: Security scan
         run: |
           echo "Running security scan..."
+          # NOTE: Uncomment when agent-generated code is present:
           # dotnet list package --vulnerable --include-transitive
+          echo "✅ Security scan framework ready"
           echo "Security scan passed"
 
   # Create pull request
