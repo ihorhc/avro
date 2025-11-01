@@ -5,7 +5,7 @@
 # file with configuration.  For more information, see:
 # https://github.com/actions/labeler
 
-name: Labeler
+name: labeler
 on: [pull_request_target]
 
 jobs:
@@ -16,12 +16,12 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Checkout repository
+      - name: checkout-repository
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Apply labels
+      - name: apply-labels
         uses: actions/labeler@v4
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"

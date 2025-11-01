@@ -6,7 +6,7 @@
 # This workflow integrates SecurityCodeScan with GitHub's Code Scanning feature
 # SecurityCodeScan is a vulnerability patterns detector for C# and VB.NET
 
-name: SecurityCodeScan
+name: security-code-scan
 
 on:
   push:
@@ -18,7 +18,7 @@ on:
     - cron: '28 1 * * 0'
 
 jobs:
-  SCS:
+  scs:
     runs-on: windows-latest
     permissions:
       contents: read
@@ -31,16 +31,16 @@ jobs:
           dotnet-version: '9.0.x'
       - uses: microsoft/setup-msbuild@v1.0.2
 
-      - name: Set up projects for analysis
+      - name: set-up-projects-for-analysis
         uses: security-code-scan/security-code-scan-add-action@f8ff4f2763ed6f229eded80b1f9af82ae7f32a0d
 
-      - name: Restore dependencies
+      - name: restore-dependencies
         run: dotnet restore
 
-      - name: Build with SecurityCodeScan
+      - name: build-with-security-code-scan
         run: dotnet build --no-restore
 
-      - name: Report scan completion
+      - name: report-scan-completion
         if: always()
         run: |
           Write-Output "SecurityCodeScan analysis completed"

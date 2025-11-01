@@ -1,4 +1,4 @@
-name: "CodeQL Advanced"
+name: "codeql-advanced"
 
 on:
   push:
@@ -28,21 +28,21 @@ jobs:
             build-mode: "none"
 
     steps:
-    - name: Checkout repository
+    - name: checkout-repository
       uses: actions/checkout@v4
 
-    - name: Set up .NET
+    - name: set-up-dotnet
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
 
-    - name: Initialize CodeQL
+    - name: initialize-codeql
       uses: github/codeql-action/init@v4
       with:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
 
-    - name: Perform CodeQL Analysis
+    - name: perform-codeql-analysis
       uses: github/codeql-action/analyze@v4
       with:
         category: "/language:${{ matrix.language }}"

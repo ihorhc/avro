@@ -1,4 +1,4 @@
-name: Version and Release
+name: version-and-release
 
 on:
   push:
@@ -22,24 +22,24 @@ jobs:
       patch: ${{ steps.version.outputs.patch }}
 
     steps:
-      - name: Checkout repository
+      - name: checkout-repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Install GitVersion
+      - name: install-git-version
         uses: gittools/actions/gitversion/setup@v0.9.7
         with:
           versionSpec: '5.x'
 
-      - name: Determine version with GitVersion
+      - name: determine-version-with-git-version
         id: gitversion
         uses: gittools/actions/gitversion/execute@v0.9.7
         with:
           useConfigFile: true
         continue-on-error: true
 
-      - name: Set version outputs
+      - name: set-version-outputs
         id: version
         run: |
           if [ "${{ steps.gitversion.outcome }}" = "success" ]; then
@@ -55,7 +55,7 @@ jobs:
             echo "patch=${{ github.run_number }}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Display version
+      - name: display-version
         run: |
           echo "Major: ${{ steps.version.outputs.major }}"
           echo "Minor: ${{ steps.version.outputs.minor }}"
@@ -70,24 +70,24 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout repository
+      - name: checkout-repository
         uses: actions/checkout@v4
 
-      - name: Set up .NET
+      - name: set-up-dotnet
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
 
-      - name: Restore dependencies
+      - name: restore-dependencies
         run: dotnet restore
 
-      - name: Build with version
+      - name: build-with-version
         run: dotnet build --no-restore --configuration Release /p:Version=${{ needs.version.outputs.semver }}
 
-      - name: Run tests
+      - name: run-tests
         run: dotnet test --no-build --configuration Release
 
-      - name: Pack NuGet packages
+      - name: pack-nuget-packages
         run: dotnet pack src/Avro.Mcp.Abstractions/Avro.Mcp.Abstractions.csproj --no-build --configuration Release -o nuget /p:Version=${{ needs.version.outputs.semver }}
 
   tag:
@@ -98,12 +98,12 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout repository
+      - name: checkout-repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Check if tag exists
+      - name: check-if-tag-exists
         id: check_tag
         run: |
           TAG="v${{ needs.version.outputs.semver }}"
@@ -115,7 +115,7 @@ jobs:
             echo "Tag $TAG does not exist, will create it"
           fi
 
-      - name: Create and push tag
+      - name: create-and-push-tag
         if: steps.check_tag.outputs.exists == 'false'
         run: |
           TAG="v${{ needs.version.outputs.semver }}"
@@ -132,10 +132,10 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout repository
+      - name: checkout-repository
         uses: actions/checkout@v4
 
-      - name: Create Release
+      - name: create-release
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ github.ref_name }}

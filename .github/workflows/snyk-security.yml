@@ -16,7 +16,7 @@
 # For more examples, including how to limit scans to only high-severity issues
 # and fail PR checks, see https://github.com/snyk/actions/
 
-name: Snyk Security
+name: snyk-security
 
 on:
   push:
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Snyk CLI to check for security issues
+      - name: set-up-snyk-cli-to-check-for-security-issues
         # Snyk can be used to break the build when it detects security issues.
         # In this case we want to upload the SAST issues to GitHub Code Scanning
         uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb
@@ -53,27 +53,27 @@ jobs:
 
         # Runs Snyk Code (SAST) analysis and uploads result into GitHub.
         # Use || true to not fail the pipeline
-      - name: Snyk Code test
+      - name: snyk-code-test
         run: snyk code test --sarif > snyk-code.sarif # || true
 
         # Runs Snyk Open Source (SCA) analysis and uploads result to Snyk.
-      - name: Snyk Open Source monitor
+      - name: snyk-open-source-monitor
         run: snyk monitor --all-projects
 
         # Runs Snyk Infrastructure as Code (IaC) analysis and uploads result to Snyk.
         # Use || true to not fail the pipeline.
-      - name: Snyk IaC test and report
+      - name: snyk-iac-test-and-report
         run: snyk iac test --report # || true
 
         # Build the docker image for testing
-      - name: Build a Docker image
+      - name: build-a-docker-image
         run: docker build -t your/image-to-test .
         # Runs Snyk Container (Container and SCA) analysis and uploads result to Snyk.
-      - name: Snyk Container monitor
+      - name: snyk-container-monitor
         run: snyk container monitor your/image-to-test --file=Dockerfile
 
         # Push the Snyk Code results into GitHub Code Scanning tab
-      - name: Upload result to GitHub Code Scanning
+      - name: upload-result-to-github-code-scanning
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk-code.sarif
