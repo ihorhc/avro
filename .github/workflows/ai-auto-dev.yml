@@ -283,10 +283,13 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const prNumber = ${{ steps.create_pr.outputs.pull-request-number }};
+            // Defensive: interpolate as string to avoid producing invalid JS when the
+            // workflow expression is empty (which would produce `const prNumber = ;`).
+            const prNumberRaw = '${{ steps.create_pr.outputs.pull-request-number }}';
+            const prNumber = prNumberRaw ? parseInt(prNumberRaw, 10) : prNumberRaw;
 
             await github.rest.issues.createComment({
-              issue_number: ${{ needs.check_trigger.outputs.issue_number }},
+              issue_number: '${{ needs.check_trigger.outputs.issue_number }}',
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: `✅ **AI Development Pipeline Complete!**\n\n` +
@@ -306,14 +309,14 @@ jobs:
             await github.rest.issues.removeLabel({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: ${{ needs.check_trigger.outputs.issue_number }},
+              issue_number: '${{ needs.check_trigger.outputs.issue_number }}',
               name: 'ai-processing'
-            });
+            }).catch(() => {});
 
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: ${{ needs.check_trigger.outputs.issue_number }},
+              issue_number: '${{ needs.check_trigger.outputs.issue_number }}',
               labels: ['ai-completed']
             });
 
@@ -329,10 +332,13 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const prNumberRaw = '${{ needs.create_pull_request.outputs.pr_number }}';
+            const prNumber = prNumberRaw ? parseInt(prNumberRaw, 10) : prNumberRaw;
+
             await github.rest.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: ${{ needs.create_pull_request.outputs.pr_number }},
+              pull_number: prNumber,
               event: 'APPROVE',
               body: '🤖 Automatically approved by AI pipeline. All quality checks passed.'
             });
@@ -341,10 +347,13 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const prNumberRaw = '${{ needs.create_pull_request.outputs.pr_number }}';
+            const prNumber = prNumberRaw ? parseInt(prNumberRaw, 10) : prNumberRaw;
+
             await github.rest.pulls.merge({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: ${{ needs.create_pull_request.outputs.pr_number }},
+              pull_number: prNumber,
               merge_method: 'squash'
             });
 
