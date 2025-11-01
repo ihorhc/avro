@@ -1,0 +1,148 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio
+.vs/
+.vscode/
+*.sln.iml
+*.code-workspace
+
+# Rider
+.idea/
+*.swp
+*.swo
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.coverage
+coverage/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+nuget.exe
+NuGetFallbackFolder
+packages.lock.json
+
+# Local package source
+nuget-source/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Linux
+*~
+.directory
+
+# Windows
+Desktop.ini
+$RECYCLE.BIN/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.production.local
+
+# Application logs
+logs/
+*.log
+*.log.*
+
+# Configuration files (environment-specific)
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Staging.json
+
+# Runtime files
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Temporary files
+*.tmp
+*.temp
+*.backup
+*~
+*.swp
+
+# OS specific
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+
+# Docker
+.dockerignore
+.docker/
+
+# IDE specific
+.editorconfig
+
+# AWS CDK specific
+cdk.out/
+cdk.context.json
+
+# Node modules (if any frontend code)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Python (if any scripts)
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+
+# Miscellaneous
+*.rar
+*.zip
+*.tar.gz
+.gradle/
+.classpath
+.c9/
+*.class
+*.jar
+*.war
+*.ear
+
+# Visual Studio Code
+.vscode/
+!.vscode/extensions.json
+
+# Local development artifacts
+dist/
+build/
+out/

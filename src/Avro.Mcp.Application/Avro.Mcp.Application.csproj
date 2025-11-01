@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <Version>1.0.0</Version>
+    <FileVersion>1.0.0</FileVersion>
+    <InformationalVersion>1.0.0</InformationalVersion>
+    <GenerateAssemblyVersionAttribute>true</GenerateAssemblyVersionAttribute>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.2.0" />
+    <PackageReference Include="FluentValidation" Version="11.9.1" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Avro.Mcp.Abstractions/Avro.Mcp.Abstractions.csproj" />
+    <ProjectReference Include="../Avro.Mcp.Infrastructure/Avro.Mcp.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

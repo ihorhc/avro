@@ -1,0 +1,72 @@
+# Labeler configuration for automatic PR labeling
+# See https://github.com/actions/labeler for syntax
+
+# Architecture and refactoring
+architecture:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/**/Abstractions/**'
+          - 'src/**/Domain/**'
+          - 'src/**/Application/**'
+          - 'src/**/Infrastructure/**'
+
+# Infrastructure and DevOps
+infrastructure:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'infra/**'
+          - '.github/**'
+          - 'Dockerfile'
+          - 'docker-compose.yml'
+          - 'global.json'
+
+# Documentation
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.md'
+          - '**/*.adoc'
+          - 'docs/**'
+          - 'README*'
+
+# Tests
+tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'tests/**'
+          - '**/*.Tests.cs'
+
+# Configuration
+config:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '*.json'
+          - '*.xml'
+          - '*.config'
+          - 'NuGet.config'
+
+# Dependencies
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.csproj'
+          - 'packages.lock.json'
+
+# Bug fixes
+bug:
+  - body:
+      - '/bug|fix|broken|issue/'
+
+# Features
+feature:
+  - body:
+      - '/feature|enhancement|new|feature request/'
+
+# Security
+security:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/workflows/**'
+          - 'global.json'
+  - body:
+      - '/security|vulnerability|CVE/'

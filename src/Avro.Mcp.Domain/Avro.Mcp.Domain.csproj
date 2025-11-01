@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <Version>1.0.0</Version>
+    <FileVersion>1.0.0</FileVersion>
+    <InformationalVersion>1.0.0</InformationalVersion>
+    <GenerateAssemblyVersionAttribute>true</GenerateAssemblyVersionAttribute>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Avro.Mcp.Abstractions/Avro.Mcp.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

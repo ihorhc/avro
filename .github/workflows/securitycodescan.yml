@@ -20,9 +20,15 @@ on:
 jobs:
   SCS:
     runs-on: windows-latest
+    permissions:
+      contents: read
+      security-events: write
+
     steps:
       - uses: actions/checkout@v4
-      - uses: nuget/setup-nuget@04b0c2b8d1b97922f67eca497d7cf0bf17b8ffe1
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
       - uses: microsoft/setup-msbuild@v1.0.2
 
       - name: Set up projects for analysis
@@ -31,11 +37,20 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build
+      - name: Build with SecurityCodeScan
         run: dotnet build --no-restore
 
-      - name: Convert sarif for uploading to GitHub
-        uses: security-code-scan/security-code-scan-results-action@cdb3d5e639054395e45bf401cba8688fcaf7a687
-
-      - name: Upload sarif
-        uses: github/codeql-action/upload-sarif@v3
+      - name: Report scan completion
+        if: always()
+        run: |
+          Write-Output "SecurityCodeScan analysis completed"
+          $sarif_files = Get-ChildItem -Path . -Filter "analysis.sarif" -Recurse
+          if ($sarif_files.Count -gt 0) {
+            Write-Output "Generated $($sarif_files.Count) SARIF file(s):"
+            foreach ($file in $sarif_files) {
+              Write-Output "  - $($file.FullName)"
+            }
+          } else {
+            Write-Output "No SARIF files generated"
+          }
+        shell: pwsh

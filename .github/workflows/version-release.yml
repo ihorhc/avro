@@ -1,0 +1,121 @@
+name: Version and Release
+
+on:
+  push:
+    branches: [ "main" ]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.0)'
+        required: false
+        type: string
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      semver: ${{ steps.version.outputs.semver }}
+      major: ${{ steps.version.outputs.major }}
+      minor: ${{ steps.version.outputs.minor }}
+      patch: ${{ steps.version.outputs.patch }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.7
+        with:
+          versionSpec: '5.x'
+
+      - name: Determine version with GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0.9.7
+        with:
+          useConfigFile: true
+        continue-on-error: true
+
+      - name: Set version outputs
+        id: version
+        run: |
+          if [ "${{ steps.gitversion.outcome }}" = "success" ]; then
+            echo "semver=${{ steps.gitversion.outputs.semVer }}" >> $GITHUB_OUTPUT
+            echo "major=${{ steps.gitversion.outputs.major }}" >> $GITHUB_OUTPUT
+            echo "minor=${{ steps.gitversion.outputs.minor }}" >> $GITHUB_OUTPUT
+            echo "patch=${{ steps.gitversion.outputs.patch }}" >> $GITHUB_OUTPUT
+          else
+            echo "GitVersion failed, using fallback version"
+            echo "semver=1.0.0+${{ github.run_number }}" >> $GITHUB_OUTPUT
+            echo "major=1" >> $GITHUB_OUTPUT
+            echo "minor=0" >> $GITHUB_OUTPUT
+            echo "patch=${{ github.run_number }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Display version
+        run: |
+          echo "Major: ${{ steps.version.outputs.major }}"
+          echo "Minor: ${{ steps.version.outputs.minor }}"
+          echo "Patch: ${{ steps.version.outputs.patch }}"
+          echo "SemVer: ${{ steps.version.outputs.semver }}"
+
+  build:
+    needs: version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build with version
+        run: dotnet build --no-restore --configuration Release /p:Version=${{ needs.version.outputs.semver }}
+
+      - name: Run tests
+        run: dotnet test --no-build --configuration Release
+
+      - name: Pack NuGet packages
+        run: dotnet pack src/Avro.Mcp.Abstractions/Avro.Mcp.Abstractions.csproj --no-build --configuration Release -o nuget /p:Version=${{ needs.version.outputs.semver }}
+
+  release:
+    needs: [version, build]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          name: Release ${{ needs.version.outputs.semver }}
+          draft: false
+          prerelease: ${{ contains(needs.version.outputs.semver, 'alpha') || contains(needs.version.outputs.semver, 'rc') }}
+          body: |
+            ## Version ${{ needs.version.outputs.semver }}
+            
+            ### Changes
+            - Major: ${{ needs.version.outputs.major }}
+            - Minor: ${{ needs.version.outputs.minor }}
+            - Patch: ${{ needs.version.outputs.patch }}
+            
+            ### Build Information
+            - Commit: ${{ github.sha }}
+            - Branch: ${{ github.ref }}

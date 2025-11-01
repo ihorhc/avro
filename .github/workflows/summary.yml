@@ -20,7 +20,7 @@ jobs:
         id: inference
         uses: actions/ai-inference@v1
         with:
-          prompt: |
+          prompt: >
             Summarize the following GitHub issue in one paragraph:
             Title: ${{ github.event.issue.title }}
             Body: ${{ github.event.issue.body }}

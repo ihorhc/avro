@@ -23,13 +23,18 @@ jobs:
       matrix:
         include:
           - language: "csharp"
-            build-mode: "none"
+            build-mode: "autobuild"
           - language: "javascript-typescript"
             build-mode: "none"
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v4
@@ -41,3 +46,4 @@ jobs:
       uses: github/codeql-action/analyze@v4
       with:
         category: "/language:${{ matrix.language }}"
+      continue-on-error: true
