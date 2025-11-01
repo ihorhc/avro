@@ -37,34 +37,19 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build
+      - name: Build with SecurityCodeScan
         run: dotnet build --no-restore
 
-      - name: Merge SARIF files
-        run: |
-          $sarif_files = Get-ChildItem -Path . -Filter "analysis.sarif" -Recurse
-          if ($sarif_files.Count -gt 0) {
-            Write-Output "Found $($sarif_files.Count) SARIF file(s)"
-            # Copy first SARIF to root for upload
-            Copy-Item -Path $sarif_files[0].FullName -Destination "$PWD/merged-analysis.sarif" -Force
-          } else {
-            Write-Output "No SARIF files found"
-          }
-        shell: pwsh
-
-      - name: Upload SARIF results
-        uses: github/codeql-action/upload-sarif@v3
-        if: hashFiles('merged-analysis.sarif') != ''
-        with:
-          sarif_file: merged-analysis.sarif
-          wait-for-processing: true
-
-      - name: Report scan results
+      - name: Report scan completion
         if: always()
         run: |
-          Write-Output "SecurityCodeScan workflow completed"
-          if (Test-Path "merged-analysis.sarif") {
-            Write-Output "SARIF file uploaded"
+          Write-Output "SecurityCodeScan analysis completed"
+          $sarif_files = Get-ChildItem -Path . -Filter "analysis.sarif" -Recurse
+          if ($sarif_files.Count -gt 0) {
+            Write-Output "Generated $($sarif_files.Count) SARIF file(s):"
+            foreach ($file in $sarif_files) {
+              Write-Output "  - $($file.FullName)"
+            }
           } else {
             Write-Output "No SARIF files generated"
           }
