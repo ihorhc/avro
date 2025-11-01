@@ -129,7 +129,7 @@
         "keyFiles": [
           "AI.Workflows/Engine/WorkflowEngine.cs",
           "AI.Workflows/Models/Workflow.cs",
-          "AI.Workflows/Executors/IssueToprExecutor.cs"
+          "AI.Workflows/Executors/IssueToPrExecutor.cs"
         ],
         "autonomyLevel": "supervised",
         "criticalPaths": [
