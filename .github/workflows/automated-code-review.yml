@@ -39,26 +39,38 @@ jobs:
       - name: Run code quality checks
         id: analysis
         run: |
+          set -e
           echo "Running code quality analysis..."
           
           # Run build and capture output
           dotnet build --configuration Debug --no-incremental 2>&1 | tee build-output.log
           
-          # Get compiler warnings count (safely)
-          WARNING_COUNT=$(grep -c "warning" build-output.log || echo "0")
+          # Get compiler warnings count - use more reliable method
+          WARNING_COUNT=$(grep "warning" build-output.log | wc -l | tr -d ' ')
+          [ -z "$WARNING_COUNT" ] && WARNING_COUNT="0"
           
-          # Calculate compliance score
+          # Calculate compliance score (static for now)
           SCORE="7.9"
           
           # Check for common issues
           ISSUES_FOUND="0"
           
-          # Set outputs with proper formatting
-          echo "score=$SCORE" >> "$GITHUB_OUTPUT"
-          echo "warnings_count=$WARNING_COUNT" >> "$GITHUB_OUTPUT"
-          echo "issues_found=$ISSUES_FOUND" >> "$GITHUB_OUTPUT"
+          # Verify we have valid values
+          echo "DEBUG: SCORE='$SCORE'"
+          echo "DEBUG: WARNING_COUNT='$WARNING_COUNT'"
+          echo "DEBUG: ISSUES_FOUND='$ISSUES_FOUND'"
           
-          # Debug output
+          # Set outputs using printf for reliability
+          {
+            printf "%s\n" "score=$SCORE"
+            printf "%s\n" "warnings_count=$WARNING_COUNT"
+            printf "%s\n" "issues_found=$ISSUES_FOUND"
+          } >> "$GITHUB_OUTPUT"
+          
+          # Verify outputs were written
+          echo "DEBUG: GITHUB_OUTPUT contents:"
+          cat "$GITHUB_OUTPUT" || true
+          
           echo "✅ Analysis complete: Score=$SCORE, Warnings=$WARNING_COUNT, Issues=$ISSUES_FOUND"
 
   compliance_check:
