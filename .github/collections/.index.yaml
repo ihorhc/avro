@@ -1,0 +1,112 @@
+# Collections Index
+
+This YAML file maps thematic collections for the Avro platform Copilot instructions.
+
+collections:
+  architecture:
+    name: "Architecture Patterns"
+    description: "Architectural patterns and microservices design"
+    file: "architecture-collection.md"
+    includes:
+      - ddd-aggregates.md
+      - state-machine-patterns.md
+      - value-objects.md
+      - best-template-patterns.md
+      - cqrs-mediatr.md
+      - event-driven-architecture.md
+      - microservices-communication.md
+      - api-gateway-patterns.md
+      - saga-pattern.md
+      - ef-core-patterns.md
+      - repository-pattern.md
+    applyTo:
+      - "src/**/Domain/**/*.cs"
+      - "src/**/Aggregates/**/*.cs"
+      - "src/**/Commands/**/*.cs"
+      - "src/**/Queries/**/*.cs"
+      - "src/**/Events/**/*.cs"
+      - "src/**/Services/**/*.cs"
+    
+  security:
+    name: "Security Best Practices"
+    description: "Security guidelines and vulnerability prevention"
+    file: "security-collection.md"
+    includes:
+      - input-validation.md
+      - sql-injection-prevention.md
+      - secrets-management.md
+      - rate-limiting.md
+      - middleware-pipeline.md
+    applyTo:
+      - "src/**/Controllers/**/*.cs"
+      - "src/**/Middleware/**/*.cs"
+      - "src/**/Data/**/*.cs"
+    priority: high
+    
+  testing:
+    name: "Testing Strategies"
+    description: "Unit and integration testing best practices"
+    file: "testing-collection.md"
+    includes:
+      - unit-testing.md
+      - integration-testing.md
+    applyTo:
+      - "tests/**/*.cs"
+    
+  csharp-features:
+    name: "Modern C# Features"
+    description: "C# language features and .NET best practices"
+    file: null
+    includes:
+      - modern-csharp-features.md
+      - nullable-reference-types.md
+      - async-await-patterns.md
+    applyTo:
+      - "src/**/*.cs"
+    priority: high
+    
+  web-api:
+    name: "Web API Patterns"
+    description: "ASP.NET Core Web API best practices"
+    file: null
+    includes:
+      - middleware-pipeline.md
+      - rate-limiting.md
+      - api-versioning.md
+      - input-validation.md
+    applyTo:
+      - "src/**/Controllers/**/*.cs"
+      - "src/**/Middleware/**/*.cs"
+
+# Prompts for on-demand usage
+prompts:
+  api-review:
+    name: "API Review"
+    description: "Comprehensive API endpoint review checklist"
+    file: "api-review.prompt.md"
+    usage: "@workspace /api-review"
+    
+  performance-tuning:
+    name: "Performance Tuning"
+    description: "Performance optimization and profiling"
+    file: "performance-tuning.prompt.md"
+    usage: "@workspace /performance-tuning"
+    
+  security-audit:
+    name: "Security Audit"
+    description: "Security vulnerability assessment"
+    file: "security-audit.prompt.md"
+    usage: "@workspace /security-audit"
+    priority: critical
+
+# Seasonal audits or reviews
+schedules:
+  quarterly-security-audit:
+    collection: security
+    prompt: security-audit
+    frequency: "quarterly"
+    
+  monthly-performance-review:
+    collection: architecture
+    prompt: performance-tuning
+    frequency: "monthly"

@@ -1,0 +1,17 @@
+global using System;
+global using System.Collections.Generic;
+global using System.CommandLine;
+global using System.Linq;
+global using System.Threading;
+global using System.Threading.Tasks;
+global using Avro.Mcp.Abstractions;
+global using Avro.Mcp.Application;
+global using Avro.Mcp.Application.Commands;
+global using Avro.Mcp.Application.Queries;
+global using Avro.Mcp.Domain;
+global using Avro.Mcp.Infrastructure;
+global using Avro.Mcp.Orchestrator.Presentation;
+global using MediatR;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using Serilog;

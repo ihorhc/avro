@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avro.Mcp.Abstractions", "src\Avro.Mcp.Abstractions\Avro.Mcp.Abstractions.csproj", "{A1F4B0E1-BC18-4B9F-BDE6-A4FE66D21DE1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avro.Mcp.Domain", "src\Avro.Mcp.Domain\Avro.Mcp.Domain.csproj", "{A2F4B0E2-BC18-4B9F-BDE6-A4FE66D21DE2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avro.Mcp.Infrastructure", "src\Avro.Mcp.Infrastructure\Avro.Mcp.Infrastructure.csproj", "{A3F4B0E3-BC18-4B9F-BDE6-A4FE66D21DE3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avro.Mcp.Application", "src\Avro.Mcp.Application\Avro.Mcp.Application.csproj", "{A4F4B0E4-BC18-4B9F-BDE6-A4FE66D21DE4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Avro.Mcp.Orchestrator", "src\Avro.Mcp.Orchestrator\Avro.Mcp.Orchestrator.csproj", "{383F4B0E-BC18-4B9F-BDE6-A4FE66D21DEA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A1F4B0E1-BC18-4B9F-BDE6-A4FE66D21DE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1F4B0E1-BC18-4B9F-BDE6-A4FE66D21DE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1F4B0E1-BC18-4B9F-BDE6-A4FE66D21DE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1F4B0E1-BC18-4B9F-BDE6-A4FE66D21DE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2F4B0E2-BC18-4B9F-BDE6-A4FE66D21DE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2F4B0E2-BC18-4B9F-BDE6-A4FE66D21DE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2F4B0E2-BC18-4B9F-BDE6-A4FE66D21DE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2F4B0E2-BC18-4B9F-BDE6-A4FE66D21DE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3F4B0E3-BC18-4B9F-BDE6-A4FE66D21DE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3F4B0E3-BC18-4B9F-BDE6-A4FE66D21DE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3F4B0E3-BC18-4B9F-BDE6-A4FE66D21DE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3F4B0E3-BC18-4B9F-BDE6-A4FE66D21DE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4F4B0E4-BC18-4B9F-BDE6-A4FE66D21DE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4F4B0E4-BC18-4B9F-BDE6-A4FE66D21DE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4F4B0E4-BC18-4B9F-BDE6-A4FE66D21DE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4F4B0E4-BC18-4B9F-BDE6-A4FE66D21DE4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{383F4B0E-BC18-4B9F-BDE6-A4FE66D21DEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{383F4B0E-BC18-4B9F-BDE6-A4FE66D21DEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{383F4B0E-BC18-4B9F-BDE6-A4FE66D21DEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{383F4B0E-BC18-4B9F-BDE6-A4FE66D21DEA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A1F4B0E1-BC18-4B9F-BDE6-A4FE66D21DE1} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{A2F4B0E2-BC18-4B9F-BDE6-A4FE66D21DE2} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{A3F4B0E3-BC18-4B9F-BDE6-A4FE66D21DE3} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{A4F4B0E4-BC18-4B9F-BDE6-A4FE66D21DE4} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{383F4B0E-BC18-4B9F-BDE6-A4FE66D21DEA} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+	EndGlobalSection
+EndGlobal
