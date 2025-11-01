@@ -1,0 +1,97 @@
+{
+  "id": "code-review-agent",
+  "name": "Code Review Agent",
+  "version": "1.0.0",
+  "description": "Automated code review agent with AI-powered suggestions",
+  "capabilities": [
+    "pattern-compliance-checking",
+    "security-scanning",
+    "performance-analysis",
+    "suggestion-generation"
+  ],
+  "permissions": {
+    "read": [
+      "pull-requests",
+      "code",
+      "patterns",
+      "context"
+    ],
+    "write": [
+      "pr-comments",
+      "pr-reviews"
+    ],
+    "restricted": []
+  },
+  "autonomyLevel": {
+    "default": "autonomous",
+    "rules": {
+      "autonomous": {
+        "conditions": [
+          "true"
+        ],
+        "note": "Review agent operates autonomously but doesn't merge code"
+      }
+    }
+  },
+  "contextRequirements": {
+    "required": [
+      "ai/context/patterns.json",
+      "ai/context/autonomy-rules.json"
+    ],
+    "optional": [
+      "ai/context/dependency-graph.json"
+    ],
+    "dynamic": [
+      "pr-diff",
+      "changed-files",
+      "project-context"
+    ]
+  },
+  "workflow": "code-review",
+  "configuration": {
+    "checkPatterns": true,
+    "checkSecurity": true,
+    "checkPerformance": true,
+    "provideExamples": true,
+    "groupCommentsByFile": true,
+    "prioritizeCriticalIssues": true
+  },
+  "reviewCriteria": {
+    "patterns": {
+      "namingConventions": "error",
+      "architectureCompliance": "error",
+      "codeStructure": "warning"
+    },
+    "security": {
+      "vulnerabilities": "error",
+      "secretsExposed": "error",
+      "injectionRisks": "error"
+    },
+    "performance": {
+      "nPlusOne": "warning",
+      "memoryLeaks": "error",
+      "inefficiencies": "info"
+    },
+    "quality": {
+      "complexity": "warning",
+      "duplicateCode": "info",
+      "testCoverage": "warning"
+    }
+  },
+  "errorHandling": {
+    "maxRetries": 1,
+    "escalateOn": [
+      "unable-to-analyze",
+      "conflicting-patterns"
+    ]
+  },
+  "monitoring": {
+    "logLevel": "info",
+    "metrics": [
+      "prs-reviewed",
+      "issues-found",
+      "suggestions-provided",
+      "avg-review-time"
+    ]
+  }
+}

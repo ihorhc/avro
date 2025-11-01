@@ -1,0 +1,125 @@
+{
+  "id": "dependency-update",
+  "name": "Dependency Update Workflow",
+  "version": "1.0.0",
+  "description": "Automated dependency updates across projects",
+  "triggers": [
+    {
+      "type": "schedule",
+      "cron": "0 0 * * 1"
+    },
+    {
+      "type": "manual"
+    }
+  ],
+  "stages": [
+    {
+      "id": "scan-dependencies",
+      "name": "Scan Dependencies",
+      "type": "dependency-scan",
+      "config": {
+        "scanBackend": true,
+        "scanFrontend": true,
+        "checkOutdated": true,
+        "checkVulnerable": true
+      },
+      "outputs": [
+        "outdatedDependencies",
+        "vulnerableDependencies"
+      ],
+      "timeout": "15m"
+    },
+    {
+      "id": "prioritize-updates",
+      "name": "Prioritize Updates",
+      "type": "prioritization",
+      "config": {
+        "prioritizeSecurity": true,
+        "prioritizeMajorVersions": false,
+        "considerBreakingChanges": true
+      },
+      "outputs": [
+        "prioritizedUpdates"
+      ],
+      "timeout": "5m"
+    },
+    {
+      "id": "check-compatibility",
+      "name": "Check Compatibility",
+      "type": "compatibility-check",
+      "config": {
+        "checkVersionConstraints": true,
+        "checkPeerDependencies": true,
+        "loadDependencyGraph": true
+      },
+      "outputs": [
+        "compatibleUpdates",
+        "incompatibleUpdates"
+      ],
+      "timeout": "10m"
+    },
+    {
+      "id": "apply-updates",
+      "name": "Apply Updates",
+      "type": "code-modification",
+      "config": {
+        "createBranch": true,
+        "branchPrefix": "deps/auto-update-",
+        "updateLockFiles": true,
+        "groupUpdates": true
+      },
+      "outputs": [
+        "updatedPackages",
+        "branchName"
+      ],
+      "timeout": "15m"
+    },
+    {
+      "id": "run-tests",
+      "name": "Run Tests",
+      "type": "validation",
+      "config": {
+        "runFullTestSuite": true,
+        "runIntegrationTests": true,
+        "checkBuildSuccess": true
+      },
+      "outputs": [
+        "testResults",
+        "buildSuccess"
+      ],
+      "rollbackOn": "failure",
+      "timeout": "30m"
+    },
+    {
+      "id": "create-pr",
+      "name": "Create Pull Request",
+      "type": "github-action",
+      "config": {
+        "title": "chore(deps): automated dependency updates",
+        "includeChangelog": true,
+        "addLabels": ["dependencies", "ai-generated"],
+        "requestReview": true
+      },
+      "timeout": "5m"
+    }
+  ],
+  "errorHandling": {
+    "onFailure": {
+      "rollbackChanges": true,
+      "createIssue": true,
+      "notifyOwner": true
+    },
+    "retryPolicy": {
+      "maxRetries": 1,
+      "backoff": "fixed"
+    }
+  },
+  "monitoring": {
+    "logLevel": "info",
+    "trackMetrics": [
+      "dependenciesScanned",
+      "updatesApplied",
+      "vulnerabilitiesFixed"
+    ]
+  }
+}

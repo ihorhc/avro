@@ -1,0 +1,122 @@
+{
+  "id": "code-review",
+  "name": "AI Code Review Workflow",
+  "version": "1.0.0",
+  "description": "Automated code review with AI-powered suggestions",
+  "triggers": [
+    {
+      "type": "github.pull_request.opened"
+    },
+    {
+      "type": "github.pull_request.synchronize"
+    }
+  ],
+  "stages": [
+    {
+      "id": "analyze-changes",
+      "name": "Analyze Changes",
+      "type": "code-analysis",
+      "config": {
+        "analyzeAddedLines": true,
+        "analyzeModifiedLines": true,
+        "detectPatternViolations": true,
+        "checkComplexity": true
+      },
+      "outputs": [
+        "filesChanged",
+        "linesAdded",
+        "linesModified",
+        "complexity"
+      ],
+      "timeout": "10m"
+    },
+    {
+      "id": "pattern-compliance",
+      "name": "Check Pattern Compliance",
+      "type": "validation",
+      "config": {
+        "loadPatterns": true,
+        "checkNamingConventions": true,
+        "checkArchitecturePatterns": true,
+        "checkCodeStructure": true
+      },
+      "outputs": [
+        "violations",
+        "suggestions"
+      ],
+      "timeout": "5m"
+    },
+    {
+      "id": "security-scan",
+      "name": "Security Vulnerability Scan",
+      "type": "security-analysis",
+      "config": {
+        "scanDependencies": true,
+        "scanCode": true,
+        "checkForSecrets": true,
+        "checkForInjections": true
+      },
+      "outputs": [
+        "vulnerabilities",
+        "securityIssues"
+      ],
+      "timeout": "10m"
+    },
+    {
+      "id": "performance-analysis",
+      "name": "Performance Analysis",
+      "type": "performance-analysis",
+      "config": {
+        "detectNPlusOne": true,
+        "detectMemoryLeaks": true,
+        "detectInefficiencies": true
+      },
+      "outputs": [
+        "performanceIssues"
+      ],
+      "timeout": "5m"
+    },
+    {
+      "id": "generate-comments",
+      "name": "Generate Review Comments",
+      "type": "ai-task",
+      "config": {
+        "model": "gpt-4",
+        "temperature": 0.3,
+        "includeLineNumbers": true,
+        "includeSuggestions": true,
+        "prioritizeIssues": true
+      },
+      "outputs": [
+        "reviewComments"
+      ],
+      "timeout": "5m"
+    },
+    {
+      "id": "submit-review",
+      "name": "Submit Review",
+      "type": "github-action",
+      "config": {
+        "reviewType": "comment",
+        "groupByFile": true,
+        "addLabels": ["ai-reviewed"]
+      },
+      "timeout": "2m"
+    }
+  ],
+  "errorHandling": {
+    "onFailure": {
+      "commentOnPR": true,
+      "includeErrorDetails": false,
+      "notifyOwner": true
+    }
+  },
+  "monitoring": {
+    "logLevel": "info",
+    "trackMetrics": [
+      "reviewTime",
+      "issuesFound",
+      "suggestionsProvided"
+    ]
+  }
+}

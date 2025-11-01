@@ -1,0 +1,190 @@
+{
+  "id": "issue-to-pr",
+  "name": "Issue to Pull Request Workflow",
+  "version": "1.0.0",
+  "description": "Autonomous workflow to convert GitHub issues into pull requests with code changes",
+  "triggers": [
+    {
+      "type": "github.issue.labeled",
+      "label": "ai:auto-implement"
+    },
+    {
+      "type": "github.issue.comment",
+      "pattern": "/ai implement"
+    }
+  ],
+  "stages": [
+    {
+      "id": "analyze-issue",
+      "name": "Analyze Issue",
+      "type": "ai-task",
+      "config": {
+        "model": "gpt-4",
+        "temperature": 0.3,
+        "systemPrompt": "Analyze the GitHub issue and extract requirements, constraints, and success criteria."
+      },
+      "outputs": [
+        "requirements",
+        "constraints",
+        "successCriteria",
+        "estimatedComplexity"
+      ],
+      "timeout": "5m"
+    },
+    {
+      "id": "gather-context",
+      "name": "Gather Context",
+      "type": "code-analysis",
+      "config": {
+        "loadNavigationContext": true,
+        "loadPatterns": true,
+        "loadDependencyGraph": true,
+        "loadAutonomyRules": true,
+        "findRelatedFiles": true
+      },
+      "outputs": [
+        "relatedFiles",
+        "relevantPatterns",
+        "dependencies",
+        "autonomyLevel"
+      ],
+      "timeout": "10m"
+    },
+    {
+      "id": "check-autonomy",
+      "name": "Check Autonomy Level",
+      "type": "decision",
+      "config": {
+        "evaluateAutonomy": true,
+        "checkCriticalPaths": true
+      },
+      "branches": {
+        "autonomous": "design-solution",
+        "supervised": "design-solution",
+        "manual": "request-human-implementation"
+      }
+    },
+    {
+      "id": "design-solution",
+      "name": "Design Solution",
+      "type": "ai-task",
+      "config": {
+        "model": "gpt-4",
+        "temperature": 0.5,
+        "systemPrompt": "Design a minimal solution that addresses the requirements while following established patterns."
+      },
+      "outputs": [
+        "solutionDesign",
+        "filesToModify",
+        "testsToCreate",
+        "estimatedChanges"
+      ],
+      "timeout": "10m"
+    },
+    {
+      "id": "implement-changes",
+      "name": "Implement Changes",
+      "type": "code-modification",
+      "config": {
+        "createBranch": true,
+        "branchPrefix": "ai/issue-",
+        "runTests": true,
+        "runLinter": true
+      },
+      "outputs": [
+        "filesModified",
+        "testResults",
+        "lintResults"
+      ],
+      "timeout": "30m"
+    },
+    {
+      "id": "validate-changes",
+      "name": "Validate Changes",
+      "type": "validation",
+      "config": {
+        "runFullTestSuite": true,
+        "checkSecurity": true,
+        "validateCoverage": true,
+        "minimumCoverage": 80
+      },
+      "outputs": [
+        "allTestsPassed",
+        "securityIssues",
+        "coveragePercentage"
+      ],
+      "rollbackOn": "failure",
+      "timeout": "20m"
+    },
+    {
+      "id": "create-pr",
+      "name": "Create Pull Request",
+      "type": "github-action",
+      "config": {
+        "generateTitle": true,
+        "generateDescription": true,
+        "linkIssue": true,
+        "addLabels": ["ai-generated"],
+        "requestReview": {
+          "autonomous": false,
+          "supervised": true,
+          "manual": true
+        }
+      },
+      "outputs": [
+        "prNumber",
+        "prUrl"
+      ],
+      "timeout": "5m"
+    },
+    {
+      "id": "await-review",
+      "name": "Await Review",
+      "type": "approval",
+      "config": {
+        "required": {
+          "autonomous": false,
+          "supervised": true,
+          "manual": true
+        },
+        "timeout": "7d",
+        "autoMergeOnApproval": {
+          "autonomous": true,
+          "supervised": false,
+          "manual": false
+        }
+      }
+    }
+  ],
+  "errorHandling": {
+    "onFailure": {
+      "commentOnIssue": true,
+      "includeErrorDetails": true,
+      "notifyOwner": true,
+      "rollbackChanges": true
+    },
+    "retryPolicy": {
+      "maxRetries": 2,
+      "backoff": "exponential"
+    }
+  },
+  "monitoring": {
+    "logLevel": "info",
+    "trackMetrics": [
+      "executionTime",
+      "successRate",
+      "testCoverage",
+      "filesModified"
+    ],
+    "alerts": [
+      {
+        "condition": "executionTime > 60m",
+        "action": "notify-admin"
+      },
+      {
+        "condition": "testCoverage < 80",
+        "action": "request-additional-tests"
+      }
+    ]
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-11-01T13:45:00Z",
+  "structure": {
+    "backend": {
+      "description": "C#/.NET 8 backend services",
+      "keyDirectories": {
+        "core": {
+          "path": "backend/core",
+          "purpose": "Core platform services",
+          "projects": [
+            "Platform.Core",
+            "TaskRegistry",
+            "Dependencies",
+            "AI.Workflows"
+          ]
+        },
+        "services": {
+          "path": "backend/services",
+          "purpose": "Microservices and APIs",
+          "projects": [
+            "API.Tasks",
+            "API.Projects",
+            "API.Workflows"
+          ]
+        },
+        "shared": {
+          "path": "backend/shared",
+          "purpose": "Shared libraries and utilities",
+          "projects": [
+            "Shared.Models",
+            "Shared.Utilities",
+            "Shared.Contracts"
+          ]
+        }
+      }
+    },
+    "frontend": {
+      "description": "TypeScript/React frontend applications",
+      "keyDirectories": {
+        "apps": {
+          "path": "frontend/apps",
+          "purpose": "Frontend applications",
+          "projects": [
+            "dashboard",
+            "taskmanager",
+            "workflow-designer"
+          ]
+        },
+        "packages": {
+          "path": "frontend/packages",
+          "purpose": "Shared packages and components",
+          "projects": [
+            "ui",
+            "hooks",
+            "utils"
+          ]
+        }
+      }
+    },
+    "ai": {
+      "description": "AI agent configurations",
+      "keyDirectories": {
+        "agents": {
+          "path": "ai/agents",
+          "purpose": "Agent definitions and configurations"
+        },
+        "context": {
+          "path": "ai/context",
+          "purpose": "Context optimization files"
+        },
+        "workflows": {
+          "path": "ai/workflows",
+          "purpose": "Workflow templates and definitions"
+        }
+      }
+    },
+    "projects": {
+      "description": "Project registry and configurations",
+      "path": "projects",
+      "keyFiles": [
+        "registry.json",
+        "project-schema.json"
+      ]
+    },
+    "tasks": {
+      "description": "Task registry",
+      "path": "tasks",
+      "keyFiles": [
+        "registry.json",
+        "task-schema.json"
+      ]
+    },
+    "docs": {
+      "description": "Documentation",
+      "path": "docs",
+      "keyFiles": [
+        "architecture.md",
+        "ai-agents.md",
+        "contributing.md"
+      ]
+    }
+  },
+  "entryPoints": {
+    "backendSolution": "backend/AVRO.Backend.sln",
+    "frontendWorkspace": "frontend/package.json",
+    "taskRegistry": "tasks/registry.json",
+    "projectRegistry": "projects/registry.json",
+    "aiWorkflows": "ai/workflows/",
+    "documentation": "docs/README.md"
+  },
+  "quickNavigation": {
+    "addNewProject": [
+      "1. Create project directory",
+      "2. Add to projects/registry.json",
+      "3. Update dependency graph",
+      "4. Add build configuration"
+    ],
+    "addNewTask": [
+      "1. Add to tasks/registry.json",
+      "2. Link to project",
+      "3. Define dependencies",
+      "4. Set AI metadata"
+    ],
+    "findCriticalCode": [
+      "Check aiContext.criticalPaths in projects/registry.json"
+    ],
+    "checkDependencies": [
+      "Load ai/context/dependency-graph.json"
+    ]
+  }
+}

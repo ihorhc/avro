@@ -1,0 +1,115 @@
+{
+  "id": "task-breakdown",
+  "name": "Task Breakdown Workflow",
+  "version": "1.0.0",
+  "description": "Break down large tasks into smaller, manageable subtasks",
+  "triggers": [
+    {
+      "type": "github.issue.labeled",
+      "label": "ai:breakdown"
+    }
+  ],
+  "stages": [
+    {
+      "id": "analyze-task",
+      "name": "Analyze Task",
+      "type": "ai-task",
+      "config": {
+        "model": "gpt-4",
+        "temperature": 0.4,
+        "systemPrompt": "Analyze the task and identify logical subtasks that can be completed independently."
+      },
+      "outputs": [
+        "taskScope",
+        "complexity",
+        "estimatedEffort"
+      ],
+      "timeout": "5m"
+    },
+    {
+      "id": "identify-dependencies",
+      "name": "Identify Dependencies",
+      "type": "dependency-analysis",
+      "config": {
+        "loadDependencyGraph": true,
+        "analyzeCrossProject": true,
+        "identifyBlockers": true
+      },
+      "outputs": [
+        "dependencies",
+        "blockers"
+      ],
+      "timeout": "5m"
+    },
+    {
+      "id": "generate-subtasks",
+      "name": "Generate Subtasks",
+      "type": "ai-task",
+      "config": {
+        "model": "gpt-4",
+        "temperature": 0.5,
+        "minSubtasks": 2,
+        "maxSubtasks": 10,
+        "includeAcceptanceCriteria": true
+      },
+      "outputs": [
+        "subtasks"
+      ],
+      "timeout": "10m"
+    },
+    {
+      "id": "assign-priorities",
+      "name": "Assign Priorities",
+      "type": "prioritization",
+      "config": {
+        "considerDependencies": true,
+        "considerBusinessValue": true,
+        "considerComplexity": true
+      },
+      "outputs": [
+        "prioritizedSubtasks"
+      ],
+      "timeout": "3m"
+    },
+    {
+      "id": "update-registry",
+      "name": "Update Task Registry",
+      "type": "registry-update",
+      "config": {
+        "createSubtaskIssues": true,
+        "linkToParentTask": true,
+        "updateDependencies": true
+      },
+      "outputs": [
+        "createdTaskIds"
+      ],
+      "timeout": "5m"
+    },
+    {
+      "id": "comment-breakdown",
+      "name": "Comment Breakdown Summary",
+      "type": "github-action",
+      "config": {
+        "commentOnIssue": true,
+        "includeTaskList": true,
+        "includeDependencyGraph": true
+      },
+      "timeout": "2m"
+    }
+  ],
+  "errorHandling": {
+    "onFailure": {
+      "commentOnIssue": true,
+      "includeErrorDetails": true,
+      "notifyOwner": true
+    }
+  },
+  "monitoring": {
+    "logLevel": "info",
+    "trackMetrics": [
+      "executionTime",
+      "subtasksCreated",
+      "avgSubtaskComplexity"
+    ]
+  }
+}

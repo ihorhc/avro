@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Task Registry Schema",
+  "description": "Schema for AVRO task registry",
+  "type": "object",
+  "required": ["version", "statistics", "tasks"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Registry version"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    },
+    "statistics": {
+      "type": "object",
+      "properties": {
+        "totalTasks": { "type": "integer" },
+        "completedTasks": { "type": "integer" },
+        "inProgressTasks": { "type": "integer" },
+        "blockedTasks": { "type": "integer" },
+        "pendingTasks": { "type": "integer" }
+      }
+    },
+    "categories": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "description": { "type": "string" },
+          "taskCount": { "type": "integer" }
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "category", "priority", "status"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^TASK-[0-9]{4,}$"
+          },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "category": {
+            "type": "string",
+            "enum": ["backend", "frontend", "infrastructure", "ai", "documentation", "testing"]
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "in-progress", "blocked", "completed", "cancelled"]
+          },
+          "assignedProject": { "type": "string" },
+          "dependencies": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "aiMetadata": {
+            "type": "object",
+            "properties": {
+              "complexity": {
+                "type": "string",
+                "enum": ["low", "medium", "high", "very-high"]
+              },
+              "estimatedEffort": { "type": "string" },
+              "requiresHumanReview": { "type": "boolean" },
+              "contextFiles": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}
