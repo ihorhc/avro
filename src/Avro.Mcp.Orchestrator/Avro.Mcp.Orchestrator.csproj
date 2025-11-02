@@ -31,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
     <ProjectReference Include="../Avro.Mcp.Abstractions/Avro.Mcp.Abstractions.csproj" />
     <ProjectReference Include="../Avro.Mcp.Domain/Avro.Mcp.Domain.csproj" />
     <ProjectReference Include="../Avro.Mcp.Infrastructure/Avro.Mcp.Infrastructure.csproj" />
