@@ -7,6 +7,8 @@ the Avro platform repository.
 
 - [AI Auto-Development Workflow](./AI_AUTODEV_WORKFLOW.md) - Complete guide to
   the autonomous AI development pipeline
+- [CodeQL Security Scanning](./CODEQL_WORKFLOW.md) - Code security analysis and
+  vulnerability scanning
 
 ## Overview
 
@@ -31,6 +33,21 @@ GitHub issues.
 - Optional auto-merge
 
 **See**: [AI_AUTODEV_WORKFLOW.md](./AI_AUTODEV_WORKFLOW.md)
+
+### CodeQL Security Scanning
+
+**File**: `.github/workflows/codeql.yml`
+
+Automated security analysis using GitHub's CodeQL engine to detect
+vulnerabilities and security issues in the codebase.
+
+**Key Features**:
+- Multi-language analysis (C#, JavaScript/TypeScript)
+- Automated vulnerability detection
+- Scheduled weekly scans
+- Integration with GitHub Security tab
+
+**See**: [CODEQL_WORKFLOW.md](./CODEQL_WORKFLOW.md)
 
 ## Quick Start
 
