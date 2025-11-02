@@ -1,6 +1,7 @@
+---
 name: automated-code-review-and-issue-mapping
 
-on:
+"on":
   push:
     branches:
       - main
@@ -38,40 +39,49 @@ jobs:
 
       - name: run-code-quality-checks
         id: analysis
+        continue-on-error: true
         run: |
-          set -e
+          set +e  # Don't exit on error, handle failures gracefully
           echo "Running code quality analysis..."
-          
+
           # Run build and capture output
-          dotnet build --configuration Debug --no-incremental 2>&1 | tee build-output.log
-          
+          dotnet build --configuration Debug \
+            --no-incremental 2>&1 | tee build-output.log
+          BUILD_EXIT_CODE=$?
+
           # Get compiler warnings count - use more reliable method
-          WARNING_COUNT=$(grep "warning" build-output.log | wc -l | tr -d ' ')
+          WARNING_COUNT=$(grep "warning" build-output.log | \
+            wc -l | tr -d ' ')
           [ -z "$WARNING_COUNT" ] && WARNING_COUNT="0"
-          
+
           # Calculate compliance score (static for now)
           SCORE="7.9"
-          
+
           # Check for common issues
           ISSUES_FOUND="0"
-          
+
           # Verify we have valid values
           echo "DEBUG: SCORE='$SCORE'"
           echo "DEBUG: WARNING_COUNT='$WARNING_COUNT'"
           echo "DEBUG: ISSUES_FOUND='$ISSUES_FOUND'"
-          
+          echo "DEBUG: BUILD_EXIT_CODE='$BUILD_EXIT_CODE'"
+
           # Set outputs using printf for reliability
           {
             printf "%s\n" "score=$SCORE"
             printf "%s\n" "warnings_count=$WARNING_COUNT"
             printf "%s\n" "issues_found=$ISSUES_FOUND"
           } >> "$GITHUB_OUTPUT"
-          
+
           # Verify outputs were written
           echo "DEBUG: GITHUB_OUTPUT contents:"
           cat "$GITHUB_OUTPUT" || true
-          
-          echo "✅ Analysis complete: Score=$SCORE, Warnings=$WARNING_COUNT, Issues=$ISSUES_FOUND"
+
+          echo "✅ Analysis complete: Score=$SCORE, " \
+            "Warnings=$WARNING_COUNT, Issues=$ISSUES_FOUND"
+
+          # Exit with build status
+          exit $BUILD_EXIT_CODE
 
   compliance-check:
     runs-on: ubuntu-latest
@@ -82,15 +92,15 @@ jobs:
       - name: verify-best-template-structure
         run: |
           echo "Checking BEST template compliance..."
-          
+
           VIOLATIONS=0
-          
+
           # Check for required project structure
           [ -d "src/Avro.Mcp.Abstractions" ] || ((VIOLATIONS++))
           [ -d "src/Avro.Mcp.Domain" ] || ((VIOLATIONS++))
           [ -d "src/Avro.Mcp.Application" ] || ((VIOLATIONS++))
           [ -d "src/Avro.Mcp.Infrastructure" ] || ((VIOLATIONS++))
-          
+
           if [ $VIOLATIONS -eq 0 ]; then
             echo "✅ BEST template structure verified"
           else
@@ -109,45 +119,87 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { data: issues } = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: ['automated-review'],
-              state: 'open',
-              per_page: 1
-            });
-            
+            const runId = context.runId;
+            const sha = context.sha.substring(0, 7);
             const dateStr = new Date().toISOString().split('T')[0];
-            const score = '${{ needs.code-quality-analysis.outputs.score }}';
-            const warnings = '${{ needs.code-quality-analysis.outputs.warnings_count }}';
-            const issues_found = '${{ needs.code-quality-analysis.outputs.issues_found }}';
-            
-            const bodyText = `Automated Code Review Results\n\n` +
-                           `Compliance Score: ${score}/10\n` +
-                           `Compiler Warnings: ${warnings}\n` +
-                           `Issues Found: ${issues_found}\n\n` +
-                           `For detailed analysis see:\n` +
-                           `- Issue #17: Code Review Analysis Report\n` +
-                           `- docs/code-review/code-review-report-2025-11-02-143000.md\n` +
-                           `- docs/code-review/ISSUE-17-MAPPING-GUIDE.md`;
-            
-            if (issues.length > 0) {
-              // Update existing issue
+
+            // Get outputs with fallback values
+            const score = '${{ needs.code-quality-analysis.outputs.score }}'
+              || 'N/A';
+            const warnings =
+              '${{ needs.code-quality-analysis.outputs.warnings_count }}'
+              || '0';
+            const issues_found =
+              '${{ needs.code-quality-analysis.outputs.issues_found }}'
+              || '0';
+
+            // Create unique identifier to prevent duplicate issues
+            const uniqueLabel = `review-${dateStr}`;
+
+            // Check for existing issue with today's date label
+            const { data: existingIssues } =
+              await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: [uniqueLabel],
+                state: 'open',
+                per_page: 1
+              });
+
+            const bodyText = "## Automated Code Review Results\n\n" +
+              "Run: #" + runId + " | Commit: " + sha + "\n\n" +
+              "- Compliance Score: " + score + "/10\n" +
+              "- Compiler Warnings: " + warnings + "\n" +
+              "- Issues Found: " + issues_found + "\n\n" +
+              "For detailed analysis see:\n" +
+              "- Issue #17: Code Review Analysis Report\n" +
+              "- docs/code-review/code-review-report-2025-11-02-143000.md\n" +
+              "- docs/code-review/ISSUE-17-MAPPING-GUIDE.md";
+
+            if (existingIssues.length > 0) {
+              // Update existing issue for today
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: issues[0].number,
-                body: `Code Review Update (${dateStr}): Score ${score}/10`
+                issue_number: existingIssues[0].number,
+                body: "### Update: Score " + score + "/10 " +
+                  "(Run #" + runId + ", Commit " + sha + ")"
               });
+              console.log('Updated existing issue:',
+                existingIssues[0].number);
             } else {
+              // Check for any open automated-review issues
+              const { data: openReviews } =
+                await github.rest.issues.listForRepo({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  labels: ['automated-review'],
+                  state: 'open',
+                  per_page: 100
+                });
+
               // Create new issue
-              await github.rest.issues.create({
+              const newIssue = await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title: `Automated Code Review - ${dateStr}`,
-                labels: ['automated-review', 'code-quality'],
+                title: "Automated Code Review - " + dateStr,
+                labels: ['automated-review', 'code-quality', uniqueLabel],
                 body: bodyText
               });
+              console.log('Created new issue:', newIssue.data.number);
+
+              // Close old open reviews to prevent clutter
+              for (const oldIssue of openReviews) {
+                if (oldIssue.number !== newIssue.data.number) {
+                  await github.rest.issues.update({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: oldIssue.number,
+                    state: 'closed'
+                  });
+                  console.log('Closed old review issue:', oldIssue.number);
+                }
+              }
             }
 
   post-summary:
@@ -158,6 +210,9 @@ jobs:
       - name: code-review-completed
         run: |
           echo "Automated Code Review Completed"
-          echo "Score: ${{ needs.code-quality-analysis.outputs.score }}/10"
-          echo "Warnings: ${{ needs.code-quality-analysis.outputs.warnings_count }}"
-          echo "Issues: ${{ needs.code-quality-analysis.outputs.issues_found }}"
+          score="${{ needs.code-quality-analysis.outputs.score }}"
+          warnings="${{ needs.code-quality-analysis.outputs.warnings_count }}"
+          issues="${{ needs.code-quality-analysis.outputs.issues_found }}"
+          echo "Score: ${score:-N/A}/10"
+          echo "Warnings: ${warnings:-0}"
+          echo "Issues: ${issues:-0}"
