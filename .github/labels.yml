@@ -74,3 +74,15 @@
 - name: refactoring
   description: Code refactoring without behavior changes
   color: 'EDEDED'
+
+- name: priority-high
+  description: High priority issue
+  color: 'B60205'
+
+- name: priority-medium
+  description: Medium priority issue
+  color: 'FFA500'
+
+- name: priority-low
+  description: Low priority issue
+  color: '008000'
