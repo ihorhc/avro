@@ -23,7 +23,7 @@ public interface IServerConfigurationRepository
     /// <summary>
     /// Removes a server configuration
     /// </summary>
-    Task RemoveAsync(string serverName, CancellationToken cancellationToken = default);
+    Task RemoveAsync(string serverName, CancellationToken cancellationToken = default(CancellationToken));
 
     /// <summary>
     /// Saves all configurations to persistent storage
