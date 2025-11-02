@@ -1,3 +1,4 @@
+---
 name: ai-autodev
 # This workflow implements the framework for AI-powered autonomous development.
 # It demonstrates the complete pipeline structure and agent coordination.
@@ -9,13 +10,19 @@ name: ai-autodev
 #
 # TO ACTIVATE:
 # When GitHub Copilot API becomes available, replace placeholder steps with:
-#   gh copilot run --agent ".github/agents/{agent}.agent.md" --context "{issue}"
+#   gh copilot run --agent ".github/agents/{agent}.agent.md"
 #
-# OR integrate with custom Copilot solutions that can execute agent instructions.
+# OR integrate with custom Copilot solutions that can execute agent
+# instructions.
 
-on:
+'on':
   issues:
-    types: [labeled, opened, edited]
+    types: [labeled, opened, edited, reopened]
+
+# Prevent multiple workflows from running for the same issue
+concurrency:
+  group: ai-dev-${{ github.event.issue.number }}
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -28,10 +35,7 @@ jobs:
   # Check if issue is ready for AI processing
   check-trigger:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      issues: write
-      pull-requests: write
+    timeout-minutes: 5
     if: contains(github.event.issue.labels.*.name, 'ai-ready')
     outputs:
       should_process: ${{ steps.check.outputs.should_process }}
@@ -40,13 +44,13 @@ jobs:
       issue_body: ${{ github.event.issue.body }}
     steps:
       - name: check-issue-readiness
-        id: check
+        id: check_readiness
         env:
           ISSUE_TITLE: ${{ github.event.issue.title }}
         run: |
           echo "Issue #${{ github.event.issue.number }}: ${ISSUE_TITLE}"
           echo "Labels: ${{ join(github.event.issue.labels.*.name, ', ') }}"
-          echo "should_process=true" >> $GITHUB_OUTPUT
+          echo "should_process=true" >> "$GITHUB_OUTPUT"
 
       - name: add-processing-label
         uses: actions/github-script@v7
@@ -81,12 +85,9 @@ jobs:
   # Architecture analysis phase
   analyze-architecture:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-    needs: ['check-trigger']
-    if: needs['check-trigger'].outputs.should_process == 'true'
+    timeout-minutes: 10
+    needs: [check-trigger]
+    if: needs.check-trigger.outputs.should_process == 'true'
     outputs:
       architecture_result: ${{ steps.analyze.outputs.result }}
       branch_name: ${{ steps.create_branch.outputs.branch_name }}
@@ -102,7 +103,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          BRANCH_NAME="ai-feature/issue-${{ needs['check-trigger'].outputs.issue_number }}"
+          BRANCH_NAME="ai-feature/issue-${{ needs.check-trigger.outputs.issue_number }}"
           echo "📝 Managing branch: ${BRANCH_NAME}"
           
           git config user.name "github-actions[bot]"
@@ -148,8 +149,8 @@ jobs:
         id: analyze
         uses: actions/github-script@v7
         env:
-          ISSUE_TITLE: ${{ needs['check-trigger'].outputs.issue_title }}
-          ISSUE_BODY: ${{ needs['check-trigger'].outputs.issue_body }}
+          ISSUE_TITLE: ${{ needs.check-trigger.outputs.issue_title }}
+          ISSUE_BODY: ${{ needs.check-trigger.outputs.issue_body }}
         with:
           script: |
             const issueBody = process.env.ISSUE_BODY || '';
@@ -188,8 +189,9 @@ jobs:
   # Parallel implementation phase
   parallel-agents:
     runs-on: ubuntu-latest
-    needs: ['check-trigger', 'analyze-architecture']
-    if: needs['analyze-architecture'].outputs.architecture_result != ''
+    timeout-minutes: 30
+    needs: [check-trigger, analyze-architecture]
+    if: needs.analyze-architecture.outputs.architecture_result != ''
     strategy:
       matrix:
         agent: [implementation, testing, devops]
@@ -198,7 +200,7 @@ jobs:
       - name: checkout-repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs['analyze-architecture'].outputs.branch_name }}
+          ref: ${{ needs.analyze-architecture.outputs.branch_name }}
           fetch-depth: 0
 
       - name: cache-nuget-packages
@@ -212,13 +214,13 @@ jobs:
       - name: setup-dotnet
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '8.0.x'
 
       - name: run-agent-task
         id: agent_run
         env:
-          ISSUE_TITLE: ${{ needs['check-trigger'].outputs.issue_title }}
-          ISSUE_BODY: ${{ needs['check-trigger'].outputs.issue_body }}
+          ISSUE_TITLE: ${{ needs.check-trigger.outputs.issue_title }}
+          ISSUE_BODY: ${{ needs.check-trigger.outputs.issue_body }}
           AGENT_NAME: ${{ matrix.agent }}
         run: |
           echo "Running ${{ matrix.agent }} agent..."
@@ -234,7 +236,7 @@ jobs:
           # For now, this workflow demonstrates the pipeline structure
           # and can be tested with manual implementations or custom integrations
 
-          echo "result=Agent $AGENT_NAME framework ready" >> $GITHUB_OUTPUT
+          echo "result=Agent $AGENT_NAME framework ready" >> "$GITHUB_OUTPUT"
 
       - name: commit-changes
         run: |
@@ -243,24 +245,20 @@ jobs:
 
           if [[ -n $(git status -s) ]]; then
             git add .
-            git commit -m "feat: ${{ matrix.agent }} agent changes for issue #${{ needs['check-trigger'].outputs.issue_number }}" || true
-            git push origin ${{ needs['analyze-architecture'].outputs.branch_name }} || true
+            git commit -m "feat: ${{ matrix.agent }} agent changes for issue #${{ needs.check-trigger.outputs.issue_number }}" || true
+            git push origin ${{ needs.analyze-architecture.outputs.branch_name }} || true
           fi
 
   # Code review phase
   code-review:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      issues: write
-      pull-requests: write
-      checks: write
-    needs: ['check-trigger', 'analyze-architecture', 'parallel-agents']
+    timeout-minutes: 20
+    needs: [check-trigger, analyze-architecture, parallel-agents]
     steps:
       - name: checkout-repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs['analyze-architecture'].outputs.branch_name }}
+          ref: ${{ needs.analyze-architecture.outputs.branch_name }}
           fetch-depth: 0
 
       - name: cache-nuget-packages
@@ -274,7 +272,7 @@ jobs:
       - name: setup-dotnet
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '8.0.x'
 
       - name: run-code-quality-checks
         run: |
@@ -305,18 +303,18 @@ jobs:
   # Create pull request
   create-pull-request:
     runs-on: ubuntu-latest
-    needs: ['check-trigger', 'analyze-architecture', 'code-review']
+    timeout-minutes: 10
+    needs: [check-trigger, analyze-architecture, code-review]
     permissions:
-      contents: write
+      contents: read
       pull-requests: write
-      issues: write
     outputs:
       pr_number: ${{ steps.create_pr.outputs.pull-request-number }}
     steps:
       - name: checkout-repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs['analyze-architecture'].outputs.branch_name }}
+          ref: ${{ needs.analyze-architecture.outputs.branch_name }}
           fetch-depth: 0
 
       - name: create-pull-request
@@ -325,33 +323,33 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: |
-            feat: ${{ needs['check-trigger'].outputs.issue_title }}
-            
-            Resolves #${{ needs['check-trigger'].outputs.issue_number }}
-          branch: ${{ needs['analyze-architecture'].outputs.branch_name }}
+            feat: ${{ needs.check-trigger.outputs.issue_title }}
+
+            Resolves #${{ needs.check-trigger.outputs.issue_number }}
+          branch: ${{ needs.analyze-architecture.outputs.branch_name }}
           delete-branch: false
           base: main
-          title: "🤖 AI: ${{ needs['check-trigger'].outputs.issue_title }}"
+          title: "🤖 AI: ${{ needs.check-trigger.outputs.issue_title }}"
           body: |
             ## AI-Generated Implementation
-            
+
             This PR was automatically generated by the AI development pipeline.
-            
-            **Resolves:** #${{ needs['check-trigger'].outputs.issue_number }}
-            
+
+            **Resolves:** #${{ needs.check-trigger.outputs.issue_number }}
+
             ### Changes Made
             - ✅ Architecture validated by Architect Agent
             - ✅ Code implemented by Implementation Agent
             - ✅ Tests created by Testing Agent
             - ✅ DevOps configuration by DevOps Agent
             - ✅ Code review completed by Review Agent
-            
+
             ### Quality Checks
             - ✅ Build successful
             - ✅ Tests passing
             - ✅ Security scan passed
             - ✅ Code review approved
-            
+
             **Labels:** ai-generated, ready-for-review
           labels: ai-generated, ready-for-review
           draft: false
@@ -360,13 +358,12 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            // Defensive: interpolate as string to avoid producing invalid JS when the
-            // workflow expression is empty (which would produce `const prNumber = ;`).
             const prNumberRaw = '${{ steps.create_pr.outputs.pull-request-number }}';
-            const prNumber = prNumberRaw ? parseInt(prNumberRaw, 10) : prNumberRaw;
+            const prNumber = prNumberRaw ? parseInt(prNumberRaw, 10) : null;
+            const issueNumber = parseInt('${{ needs.check-trigger.outputs.issue_number }}', 10);
 
             await github.rest.issues.createComment({
-              issue_number: "${{ needs['check-trigger'].outputs.issue_number }}",
+              issue_number: issueNumber,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: `✅ **AI Development Pipeline Complete!**\n\n` +
@@ -386,21 +383,22 @@ jobs:
             await github.rest.issues.removeLabel({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: "${{ needs['check-trigger'].outputs.issue_number }}",
+              issue_number: issueNumber,
               name: 'ai-processing'
             }).catch(() => {});
 
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: "${{ needs['check-trigger'].outputs.issue_number }}",
+              issue_number: issueNumber,
               labels: ['ai-completed']
             });
 
   # Optional: Auto-approve for trusted scenarios
   auto-approve:
     runs-on: ubuntu-latest
-    needs: ['create-pull-request', 'code-review']
+    timeout-minutes: 5
+    needs: [create-pull-request, code-review]
     permissions:
       pull-requests: write
     if: success() && contains(github.event.issue.labels.*.name, 'auto-merge')
@@ -409,39 +407,40 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const prNumberRaw = "${{ needs['create-pull-request'].outputs.pr_number }}";
-            const prNumber = prNumberRaw ? parseInt(prNumberRaw, 10) : prNumberRaw;
+            const prNumberRaw = '${{ needs.create-pull-request.outputs.pr_number }}';
+            const prNumber = prNumberRaw ? parseInt(prNumberRaw, 10) : null;
 
-            await github.rest.pulls.createReview({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber,
-              event: 'APPROVE',
-              body: '🤖 Automatically approved by AI pipeline. All quality checks passed.'
-            });
+            if (prNumber) {
+              await github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                event: 'APPROVE',
+                body: '🤖 Auto-approved by AI pipeline. All quality checks passed.'
+              });
+            }
 
       - name: enable-auto-merge
         uses: actions/github-script@v7
         with:
           script: |
-            const prNumberRaw = "${{ needs['create-pull-request'].outputs.pr_number }}";
-            const prNumber = prNumberRaw ? parseInt(prNumberRaw, 10) : prNumberRaw;
+            const prNumberRaw = '${{ needs.create-pull-request.outputs.pr_number }}';
+            const prNumber = prNumberRaw ? parseInt(prNumberRaw, 10) : null;
 
-            await github.rest.pulls.merge({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber,
-              merge_method: 'squash'
-            });
+            if (prNumber) {
+              await github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                merge_method: 'squash'
+              });
+            }
 
   # Cleanup on failure
   cleanup-on-failure:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      issues: write
-      pull-requests: write
-    needs: ['check-trigger', 'analyze-architecture', 'parallel-agents', 'code-review', 'create-pull-request']
+    timeout-minutes: 5
+    needs: [check-trigger, analyze-architecture, parallel-agents, code-review, create-pull-request]
     if: failure()
     steps:
       - name: comment-pipeline-failure

@@ -184,7 +184,7 @@ See: [`.github/agents/devops.agent.md`](../.github/agents/devops.agent.md)
 
 ### Workflow File
 
-The main workflow is defined in [`.github/workflows/ai-auto-dev.yml`](../.github/workflows/ai-auto-dev.yml)
+The main workflow is defined in [`.github/workflows/ai-autodev.yml`](../.github/workflows/ai-autodev.yml)
 
 ### Agent Instructions
 
