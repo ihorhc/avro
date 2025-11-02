@@ -43,10 +43,11 @@ latest .NET 10 SDK patch version.
 ```
 
 **Compatibility Notes**:
-- The repository's `global.json` specifies `"rollForward": "latestFeature"`,
-  allowing .NET 10 SDK to build projects targeting earlier framework versions
-- All C# projects currently target `net9.0` and will build successfully with
-  .NET 10 SDK
+- The repository's `global.json` specifies SDK version 9.0.0 with
+  `"rollForward": "latestFeature"` policy, which allows the SDK to
+  automatically roll forward to .NET 10
+- All C# projects currently target `net9.0` framework and will build
+  successfully with .NET 10 SDK
 - Future migrations to `net10.0` target framework can be done incrementally
 
 ### Required Permissions
