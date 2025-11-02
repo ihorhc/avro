@@ -1,0 +1,40 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Build the solution quietly
+    cmds:
+      - dotnet build Avro.sln --verbosity:quiet
+    status:
+      - test -f src/Avro.Mcp.Orchestrator/bin/Debug/net9.0/Avro.Mcp.Orchestrator.dll
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - dotnet clean Avro.sln
+
+  restore:
+    desc: Restore NuGet packages
+    cmds:
+      - dotnet restore Avro.sln
+
+  test:
+    desc: Run tests
+    cmds:
+      - dotnet test --verbosity:quiet
+
+  run:
+    desc: Build and run the orchestrator
+    deps: [build]
+    cmds:
+      - dotnet run --project src/Avro.Mcp.Orchestrator/Avro.Mcp.Orchestrator.csproj
+
+  watch:
+    desc: Watch for changes and rebuild
+    cmds:
+      - dotnet watch --project Avro.sln run
+
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list

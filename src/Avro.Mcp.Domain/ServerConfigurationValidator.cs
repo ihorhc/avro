@@ -1,5 +1,6 @@
-namespace Avro.Mcp.Domain;
+using Avro.Mcp.Abstractions;
 
+namespace Avro.Mcp.Domain;
 /// <summary>
 /// Validates server configurations against business rules
 /// </summary>

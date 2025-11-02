@@ -17,7 +17,7 @@ public static class ServiceConfiguration
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
                 .WriteTo.Console()
-                .WriteTo.File("logs/mcp-orchestrator-.txt", rollingInterval: Serilog.RollingInterval.Day)
+                .WriteTo.File("logs/mcp-orchestrator-.txt", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
             loggingBuilder.AddSerilog(Log.Logger);
@@ -40,7 +40,7 @@ public static class ServiceConfiguration
         services.AddSingleton<ConsolePresenter>();
 
         var provider = services.BuildServiceProvider();
-        var loggerFactory = provider.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>();
+        var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
         var logger = loggerFactory.CreateLogger("Orchestrator");
 
         return (provider, logger);

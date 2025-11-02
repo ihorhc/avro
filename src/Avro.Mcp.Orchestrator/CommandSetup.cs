@@ -20,14 +20,14 @@ public static class CommandSetup
         var configShowCommand = CreateConfigShowCommand(mediator, presenter);
         var configCommand = new Command("config", "Configuration") { configShowCommand };
 
-        var root = new RootCommand("Avro MCP Orchestrator") 
-        { 
-            serverCommand, 
-            listCommand, 
-            startCommand, 
-            stopCommand, 
-            statusCommand, 
-            configCommand 
+        var root = new RootCommand("Avro MCP Orchestrator")
+        {
+            serverCommand,
+            listCommand,
+            startCommand,
+            stopCommand,
+            statusCommand,
+            configCommand
         };
 
         return root;
@@ -37,9 +37,9 @@ public static class CommandSetup
     {
         var nameArg = new Argument<string>("name", "Server name");
         var commandArg = new Argument<string>("command", "Command to execute");
-        var argsOption = new Option<string?>(new[] { "-a", "--args" }, "Command arguments");
-        var workDirOption = new Option<string?>(new[] { "-w", "--working-dir" }, "Working directory");
-        var timeoutOption = new Option<int>(new[] { "-t", "--timeout" }, () => 30, "Timeout in seconds");
+        var argsOption = new Option<string?>(["-a", "--args"], "Command arguments");
+        var workDirOption = new Option<string?>(["-w", "--working-dir"], "Working directory");
+        var timeoutOption = new Option<int>(aliases: ["-t", "--timeout"], () => 30, "Timeout in seconds");
 
         var command = new Command("add", "Add server") { nameArg, commandArg, argsOption, workDirOption, timeoutOption };
         command.SetHandler(async (name, cmd, args, workDir, timeout) =>
@@ -75,7 +75,8 @@ public static class CommandSetup
             try
             {
                 var configs = await mediator.Send(new GetAllServersQuery());
-                if (!configs.Any())
+                var serverConfigs = configs as ServerConfig[] ?? configs.ToArray();
+                if (serverConfigs.Length == 0)
                 {
                     presenter.PresentNoServersConfigured();
                     return;
@@ -84,7 +85,7 @@ public static class CommandSetup
                 var statuses = await mediator.Send(new GetAllServerStatusesQuery());
                 var statusDict = statuses.ToDictionary(s => s.Name);
 
-                var servers = configs.OrderBy(x => x.Name).Select(config =>
+                var servers = serverConfigs.OrderBy(x => x.Name).Select(config =>
                     (config.Name, config.Command, statusDict[config.Name].Running, config.AutoStart)
                 );
 
@@ -167,13 +168,14 @@ public static class CommandSetup
             try
             {
                 var statuses = await mediator.Send(new GetAllServerStatusesQuery());
-                if (!statuses.Any())
+                var statusList = statuses.ToList();
+                if (!statusList.Any())
                 {
                     presenter.PresentNoServersConfigured();
                     return;
                 }
 
-                presenter.PresentServerStatus(statuses);
+                presenter.PresentServerStatus(statusList);
             }
             catch (Exception ex)
             {
@@ -192,6 +194,7 @@ public static class CommandSetup
             try
             {
                 var configs = await mediator.Send(new GetAllServersQuery());
+                var configList = configs.ToList();
                 var statuses = await mediator.Send(new GetAllServerStatusesQuery());
                 var runningCount = statuses.Count(s => s.Running);
 
@@ -199,8 +202,8 @@ public static class CommandSetup
                     Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
                     ".avro", "mcp-config.json");
 
-                var configDetails = configs.Select(c => (c.Name, c));
-                presenter.PresentConfiguration(configPath, configs.Count(), runningCount, configDetails);
+                var configDetails = configList.Select(c => (c.Name, c));
+                presenter.PresentConfiguration(configPath, configList.Count, runningCount, configDetails);
             }
             catch (Exception ex)
             {
