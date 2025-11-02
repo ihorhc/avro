@@ -28,6 +28,10 @@ jobs:
   # Check if issue is ready for AI processing
   check-trigger:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
     if: contains(github.event.issue.labels.*.name, 'ai-ready')
     outputs:
       should_process: ${{ steps.check.outputs.should_process }}
@@ -77,6 +81,10 @@ jobs:
   # Architecture analysis phase
   analyze-architecture:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     needs: ['check-trigger']
     if: needs['check-trigger'].outputs.should_process == 'true'
     outputs:
@@ -222,6 +230,11 @@ jobs:
   # Code review phase
   code-review:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      checks: write
     needs: ['check-trigger', 'analyze-architecture', 'parallel-agents']
     steps:
       - name: checkout-repository
@@ -274,8 +287,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: ['check-trigger', 'analyze-architecture', 'code-review']
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
+      issues: write
     outputs:
       pr_number: ${{ steps.create_pr.outputs.pull-request-number }}
     steps:
@@ -403,6 +417,10 @@ jobs:
   # Cleanup on failure
   cleanup-on-failure:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
     needs: ['check-trigger', 'analyze-architecture', 'parallel-agents', 'code-review', 'create-pull-request']
     if: failure()
     steps:
