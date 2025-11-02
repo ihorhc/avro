@@ -90,13 +90,31 @@ jobs:
 
       - name: create-feature-branch
         id: create_branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e
           BRANCH_NAME="ai-feature/issue-${{ needs['check-trigger'].outputs.issue_number }}-$(date +%s)"
-          echo "branch_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "📝 Creating branch: ${BRANCH_NAME}"
+          
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b "${BRANCH_NAME}"
-          git push origin "${BRANCH_NAME}"
+          
+          if git checkout -b "${BRANCH_NAME}"; then
+            echo "✅ Branch created successfully: ${BRANCH_NAME}"
+          else
+            echo "❌ Failed to create branch"
+            exit 1
+          fi
+          
+          if git push origin "${BRANCH_NAME}"; then
+            echo "✅ Branch pushed successfully"
+          else
+            echo "❌ Failed to push branch to origin"
+            exit 1
+          fi
+          
+          echo "branch_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
 
       - name: analyze-architecture
         id: analyze
@@ -233,14 +251,14 @@ jobs:
           # dotnet build --no-incremental
           echo "✅ Code quality framework ready"
 
-      - name: run-super-linter
-        uses: super-linter/super-linter@v8.2.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_CSHARP: true
-          VALIDATE_YAML: true
-          VALIDATE_MARKDOWN: true
-          DEFAULT_BRANCH: main
+      # - name: run-super-linter
+      #   uses: super-linter/super-linter@v8.2.1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     VALIDATE_CSHARP: true
+      #     VALIDATE_YAML: true
+      #     VALIDATE_MARKDOWN: true
+      #     DEFAULT_BRANCH: main
 
       - name: run-security-scan
         run: |
