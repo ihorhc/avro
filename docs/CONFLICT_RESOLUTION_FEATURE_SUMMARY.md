@@ -13,7 +13,7 @@ A comprehensive GitHub issue has been created for implementing automated merge c
 ### 1. GitHub Issue #73
 **Title**: `feat: Automated merge conflict resolution via AI agent`
 **URL**: https://github.com/ihorhc/avro/issues/73
-**Labels**: 
+**Labels**:
 - `feature`
 - `ci/cd`
 - `ai-agent`
@@ -94,7 +94,7 @@ Support **6 intelligent strategies** rather than one-size-fits-all:
 
 ```
 Auto-commit: >= 85% confidence
-Manual review: 50-85% confidence  
+Manual review: 50-85% confidence
 Escalation: < 50% confidence
 ```
 

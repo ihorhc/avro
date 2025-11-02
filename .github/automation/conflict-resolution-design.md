@@ -117,7 +117,7 @@ This document outlines the design for an automated merge conflict resolution sys
 
 ### Strategy 5: Pattern Matching
 **Use Case**: Special file types (changelog, version, lock files)
-**Logic**: 
+**Logic**:
 - Changelog/version: Merge both entries with sorting
 - Lock files: Regenerate or use base version
 - Config: Merge with strategy priorities
@@ -243,7 +243,7 @@ conflict-resolution:
   enabled: true
   auto-commit: true
   confidence-threshold: 85
-  
+
   strategies:
     - cqrs:
         enabled: true
@@ -254,7 +254,7 @@ conflict-resolution:
     - ast-aware:
         enabled: true
         confidence: 92
-  
+
   file-types:
     "*.cs":
       strategy: cqrs
