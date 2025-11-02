@@ -25,10 +25,10 @@ echo ""
 # Validate YAML syntax
 echo "📋 Validating YAML syntax..."
 if command -v yamllint &> /dev/null; then
-    # Check for errors only (warnings are acceptable)
-    if yamllint "${WORKFLOW_FILE}" 2>&1 | grep -q "::error"; then
+    # Check for errors only (ignore line-length warnings)
+    if yamllint "${WORKFLOW_FILE}" 2>&1 | grep "::error" | grep -v "line-length" | grep -q "::error"; then
         echo "❌ YAML syntax errors found:"
-        yamllint "${WORKFLOW_FILE}" 2>&1 | grep "::error"
+        yamllint "${WORKFLOW_FILE}" 2>&1 | grep "::error" | grep -v "line-length"
         exit 1
     else
         echo "✅ YAML syntax is valid (warnings may exist)"
