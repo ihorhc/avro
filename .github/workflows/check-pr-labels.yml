@@ -1,0 +1,51 @@
+name: Check Required PR Labels
+
+permissions:
+  pull-requests: read
+
+on:
+  pull_request_target:
+    types: [opened, edited, reopened, labeled, unlabeled, synchronize]
+    branches:
+      - 'main'
+
+jobs:
+  check-labels:
+    if: github.repository == 'ihorhc/avro'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Required Labels
+        run: |
+          echo "Checking for required labels on PR #${{ github.event.pull_request.number }}"
+          
+          LABELS="${{ toJSON(github.event.pull_request.labels.*.name) }}"
+          echo "Labels on this PR: $LABELS"
+          
+          # Check if PR has at least one meaningful label
+          if echo "$LABELS" | grep -qiE '(feature|bugfix|enhancement|refactor|documentation|infrastructure|security)'; then
+            echo "✅ PR has appropriate label"
+            exit 0
+          else
+            echo "::error:: PR requires at least one label: feature, bugfix, enhancement, refactor, documentation, infrastructure, or security"
+            echo "Please add appropriate label to continue. More information: https://github.com/ihorhc/avro/wiki/Workflows"
+            exit 1
+          fi
+
+      - name: Check for Automation Labels
+        if: success() || failure()
+        run: |
+          echo ""
+          echo "📋 Label Status Summary:"
+          LABELS="${{ toJSON(github.event.pull_request.labels.*.name) }}"
+          
+          if echo "$LABELS" | grep -qi "ai-ready"; then
+            echo "✅ AI-ready: This PR will be processed by AI agents"
+          else
+            echo "ℹ️  AI-ready: Not set (standard manual review)"
+          fi
+          
+          if echo "$LABELS" | grep -qi "auto-merge"; then
+            echo "✅ Auto-merge: This PR may be auto-merged if all checks pass"
+          else
+            echo "ℹ️  Auto-merge: Not set (manual merge required)"
+          fi
