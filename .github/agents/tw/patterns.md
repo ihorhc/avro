@@ -1,7 +1,4 @@
-# Tech Writer Agent - Documentation Templates<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
-
-
-
+# Tech Writer Agent - Documentation Templates
 This file contains reusable templates for generating consistent technical documentation across the Avro platform.# write again \# docs/.agents/tech-writer/patterns.md in codeblock please
 
 
@@ -22,15 +19,20 @@ title: 2025.11.0
 
 date: 2025-11-02
 
-type: minor***
+type: minor
 
-prs:title: 2025.11.0
+prs:
+  title: 2025.11.0
 
-components: [avro.cli, avro.svc.billing]date: 2025-11-02
+components:
+  - avro.cli
+  - avro.svc.billing
+date: 2025-11-02
 
-breaking: falsetype: minor
+breaking: false
+type: minor
 
-security: falseprs:
+security: false
 
 ---components: [avro.cli, avro.svc.billing]
 
