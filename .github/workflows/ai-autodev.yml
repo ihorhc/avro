@@ -102,24 +102,44 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          BRANCH_NAME="ai-feature/issue-${{ needs['check-trigger'].outputs.issue_number }}-$(date +%s)"
-          echo "📝 Creating branch: ${BRANCH_NAME}"
+          BRANCH_NAME="ai-feature/issue-${{ needs['check-trigger'].outputs.issue_number }}"
+          echo "📝 Managing branch: ${BRANCH_NAME}"
           
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          if git checkout -b "${BRANCH_NAME}"; then
-            echo "✅ Branch created successfully: ${BRANCH_NAME}"
+          # Check if branch exists on remote
+          if git ls-remote --heads origin "${BRANCH_NAME}" | grep -q "${BRANCH_NAME}"; then
+            echo "✅ Branch already exists on remote, fetching..."
+            git fetch origin "${BRANCH_NAME}"
+            
+            if git rev-parse --verify "${BRANCH_NAME}" &>/dev/null; then
+              git checkout "${BRANCH_NAME}"
+            else
+              git checkout -b "${BRANCH_NAME}" "origin/${BRANCH_NAME}"
+            fi
+            echo "✅ Using existing branch"
           else
-            echo "❌ Failed to create branch"
-            exit 1
-          fi
-          
-          if git push origin "${BRANCH_NAME}"; then
-            echo "✅ Branch pushed successfully"
-          else
-            echo "❌ Failed to push branch to origin"
-            exit 1
+            echo "📝 Creating new branch locally..."
+            git checkout -b "${BRANCH_NAME}"
+            
+            # Push with retry logic
+            MAX_RETRIES=3
+            RETRY=0
+            while [ $RETRY -lt $MAX_RETRIES ]; do
+              if git push origin "${BRANCH_NAME}"; then
+                echo "✅ Branch pushed successfully"
+                break
+              fi
+              RETRY=$((RETRY + 1))
+              if [ $RETRY -lt $MAX_RETRIES ]; then
+                echo "⚠️ Push attempt ${RETRY} failed, retrying..."
+                sleep $((2 ** RETRY))
+              else
+                echo "❌ Failed to push branch after ${MAX_RETRIES} attempts"
+                exit 1
+              fi
+            done
           fi
           
           echo "branch_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
