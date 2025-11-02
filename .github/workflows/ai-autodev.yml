@@ -53,7 +53,7 @@ jobs:
           echo "Issue #${{ github.event.issue.number }}: ${ISSUE_TITLE}"
           echo "Labels: ${{ join(github.event.issue.labels.*.name, ', ') }}"
           echo "::endgroup::"
-          
+
           echo "should_process=true" >> "$GITHUB_OUTPUT"
           echo "::notice::Issue ready for AI processing"
 
@@ -109,20 +109,20 @@ jobs:
         run: |
           set -e
           BRANCH_NAME="ai-feature/issue-${{ needs.check-trigger.outputs.issue_number }}"
-          
+
           echo "::group::Branch Management"
           echo "📝 Managing branch: ${BRANCH_NAME}"
           echo "Issue number: ${{ needs.check-trigger.outputs.issue_number }}"
-          
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           # Check if branch exists on remote
           echo "Checking for existing branch on remote..."
           if git ls-remote --heads origin "${BRANCH_NAME}" | grep -q "${BRANCH_NAME}"; then
             echo "✅ Branch already exists on remote, fetching..."
             git fetch origin "${BRANCH_NAME}"
-            
+
             if git rev-parse --verify "${BRANCH_NAME}" &>/dev/null; then
               echo "Checking out existing local branch..."
               git checkout "${BRANCH_NAME}"
@@ -136,7 +136,7 @@ jobs:
             echo "📝 Creating new branch locally..."
             git checkout -b "${BRANCH_NAME}"
             echo "Branch created locally: $(git branch --show-current)"
-            
+
             # Push with retry logic
             echo "Pushing branch to remote..."
             MAX_RETRIES=3
@@ -157,14 +157,14 @@ jobs:
               fi
             done
           fi
-          
+
           # Verify branch was created
           CURRENT_BRANCH=$(git branch --show-current)
           if [ "${CURRENT_BRANCH}" != "${BRANCH_NAME}" ]; then
             echo "::error::Branch mismatch: expected ${BRANCH_NAME}, got ${CURRENT_BRANCH}"
             exit 1
           fi
-          
+
           echo "branch_name=${BRANCH_NAME}" >> "$GITHUB_OUTPUT"
           echo "::endgroup::"
           echo "::notice::Branch management completed successfully: ${BRANCH_NAME}"
@@ -179,7 +179,7 @@ jobs:
           script: |
             const issueBody = process.env.ISSUE_BODY || '';
             const issueTitle = process.env.ISSUE_TITLE || '';
-            
+
             core.startGroup('Architecture Analysis');
             core.info(`Analyzing issue: ${issueTitle}`);
             core.info(`Issue body length: ${issueBody.length} characters`);
@@ -262,7 +262,7 @@ jobs:
           echo "Issue: $ISSUE_TITLE"
           echo "Branch: $BRANCH_NAME"
           echo "Current branch: $(git branch --show-current)"
-          
+
           # Verify we're on the correct branch
           CURRENT_BRANCH=$(git branch --show-current)
           if [ "${CURRENT_BRANCH}" != "${BRANCH_NAME}" ]; then
@@ -278,7 +278,7 @@ jobs:
           #
           # For now, this workflow demonstrates the pipeline structure
           # and can be tested with manual implementations or custom integrations
-          
+
           echo "result=Agent $AGENT_NAME framework ready" >> "$GITHUB_OUTPUT"
           echo "::endgroup::"
           echo "::notice::Agent $AGENT_NAME execution completed"
@@ -515,7 +515,7 @@ jobs:
           echo "- branch_name: ${{ needs.analyze-architecture.outputs.branch_name }}"
           echo "- architecture_result: ${{ needs.analyze-architecture.outputs.architecture_result }}"
           echo "::endgroup::"
-      
+
       - name: comment-pipeline-failure
         uses: actions/github-script@v7
         with:
@@ -527,17 +527,17 @@ jobs:
               'code-review': '${{ needs.code-review.result }}',
               'create-pull-request': '${{ needs.create-pull-request.result }}'
             };
-            
+
             const failedJobs = Object.entries(failureInfo)
               .filter(([_, status]) => status === 'failure')
               .map(([job]) => `- ❌ ${job}`)
               .join('\n');
-            
+
             const skippedJobs = Object.entries(failureInfo)
               .filter(([_, status]) => status === 'skipped')
               .map(([job]) => `- ⏭️ ${job}`)
               .join('\n');
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
