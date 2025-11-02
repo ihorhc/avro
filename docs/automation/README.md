@@ -58,6 +58,11 @@ When adding new workflows or modifying existing ones:
 Use these tools to validate workflows before deploying:
 
 ```bash
+# Quick validation script (recommended)
+./docs/automation/validate-workflow.sh
+
+# Manual validation with individual tools:
+
 # YAML syntax validation
 yamllint .github/workflows/*.yml
 

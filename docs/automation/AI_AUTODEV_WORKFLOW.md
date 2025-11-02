@@ -210,15 +210,28 @@ To test the workflow without making permanent changes:
 
 Before deploying changes to the workflow:
 
-1. **YAML Validation**:
+1. **Quick Validation** (recommended):
+   ```bash
+   ./docs/automation/validate-workflow.sh
+   ```
+
+2. **Manual YAML Validation**:
    ```bash
    yamllint .github/workflows/ai-autodev.yml
    ```
 
-2. **Workflow Validation**:
+3. **Manual Workflow Validation**:
    ```bash
    actionlint .github/workflows/ai-autodev.yml
    ```
+
+The validation script (`docs/automation/validate-workflow.sh`) performs
+comprehensive checks including:
+- YAML syntax validation
+- GitHub Actions workflow validation
+- Job naming consistency
+- Required job and output verification
+- Documentation completeness
 
 ## Troubleshooting
 
