@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.10" />
     <ProjectReference Include="../Avro.Mcp.Abstractions/Avro.Mcp.Abstractions.csproj" />
   </ItemGroup>
 
